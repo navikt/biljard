@@ -1,0 +1,555 @@
+---
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { Tournament, Participant, Match } from '../lib/db';
+
+interface Standing {
+  participant: Participant;
+  wins: number;
+  losses: number;
+  played: number;
+}
+
+interface Props {
+  tournament: Tournament;
+  participants: Participant[];
+  matches: Match[];
+  standings: Standing[];
+}
+
+const { tournament, participants, matches, standings } = Astro.props;
+
+const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
+
+const matchesByRound: Record<number, Match[]> = {};
+for (const match of matches) {
+  if (!matchesByRound[match.round]) {
+    matchesByRound[match.round] = [];
+  }
+  matchesByRound[match.round].push(match);
+}
+
+const formatDate = (dateString: string | null, includeTime = false) => {
+  if (!dateString) return '-';
+  const options: Intl.DateTimeFormatOptions = includeTime 
+    ? { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }
+    : { day: 'numeric', month: 'long', year: 'numeric' };
+  return new Date(dateString).toLocaleDateString('nb-NO', options);
+};
+
+const completedMatches = matches.filter(m => m.winner_id !== null).length;
+const completionPercentage = matches.length > 0 
+  ? Math.round((completedMatches / matches.length) * 100) 
+  : 0;
+
+const TYPE_LABELS: Record<string, string> = {
+  'round-robin': 'Round Robin',
+  'knockout': 'Utslagsturnering',
+  'swiss': 'Swiss-system',
+};
+---
+
+<div class="space-y-6" id="tournament-admin" data-tournament-id={tournament.id}>
+  <div id="admin-message" class="hidden">
+    <Alert variant="default" id="admin-alert">
+      <AlertDescription id="admin-alert-text"></AlertDescription>
+    </Alert>
+  </div>
+
+  <Tabs defaultValue="info" className="w-full">
+    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+      <TabsTrigger value="info">Informasjon</TabsTrigger>
+      <TabsTrigger value="participants">Deltakere ({participants.length})</TabsTrigger>
+      <TabsTrigger value="matches">Kamper ({completedMatches}/{matches.length})</TabsTrigger>
+      <TabsTrigger value="standings">Tabell</TabsTrigger>
+    </TabsList>
+
+    <TabsContent value="info">
+      <Card>
+        <CardHeader>
+          <CardTitle>Turneringsinformasjon</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <dl className="grid gap-4 sm:grid-cols-2 text-sm">
+            <div>
+              <dt className="font-medium text-muted-foreground">Navn</dt>
+              <dd>{tournament.name}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Beskrivelse</dt>
+              <dd>{tournament.description || <span class="text-muted-foreground italic">Ingen beskrivelse</span>}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Type</dt>
+              <dd>{TYPE_LABELS[tournament.type] ?? tournament.type}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Runder</dt>
+              <dd>{tournament.rounds}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Varighet per runde</dt>
+              <dd>{tournament.round_duration_weeks} uker</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Påmeldingsfrist</dt>
+              <dd>{formatDate(tournament.registration_deadline, true)}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-muted-foreground">Oppstart</dt>
+              <dd>{formatDate(tournament.start_date)}</dd>
+            </div>
+            {tournament.status === 'active' && matches.length > 0 && (
+              <div class="sm:col-span-2">
+                <dt class="font-medium text-muted-foreground mb-2">Fremgang</dt>
+                <dd class="flex items-center gap-2">
+                  <Progress value={completionPercentage} className="w-[120px]" />
+                  <span class="text-sm">
+                    {completionPercentage}% ({completedMatches} av {matches.length} kamper)
+                  </span>
+                </dd>
+              </div>
+            )}
+          </dl>
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold">Endre status</h3>
+            <div class="flex flex-wrap gap-2">
+              {tournament.status === 'registration' && (
+                <Button id="btn-start-tournament" disabled={participants.length < 2}>
+                  Start turnering
+                </Button>
+              )}
+              {tournament.status === 'registration' && participants.length < 2 && (
+                <p class="text-sm text-muted-foreground w-full">
+                  Minst 2 deltakere kreves for å starte
+                </p>
+              )}
+              {tournament.status === 'active' && (
+                <Button id="btn-complete-tournament">
+                  Avslutt turnering
+                </Button>
+              )}
+              {tournament.status === 'completed' && (
+                <Button variant="secondary" id="btn-reopen-tournament">
+                  Gjenåpne turnering
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div class="pt-6 border-t">
+            <h3 class="text-lg font-semibold mb-4 text-destructive">Faresone</h3>
+            <Button variant="error" id="btn-delete-tournament">
+              Slett turnering
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
+
+    <TabsContent value="participants">
+      <Card>
+        <CardHeader>
+          <CardTitle>Deltakere</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {participants.length > 0 ? (
+            <div class="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Navn</TableHead>
+                    <TableHead>E-post</TableHead>
+                    <TableHead>Slack</TableHead>
+                    <TableHead>Registrert</TableHead>
+                    <TableHead className="w-[100px]">Handlinger</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {participants.map(p => (
+                    <TableRow>
+                      <TableCell className="font-medium">{p.name}</TableCell>
+                      <TableCell>{p.email}</TableCell>
+                      <TableCell>{p.slack_handle ?? '-'}</TableCell>
+                      <TableCell>{formatDate(p.registered_at)}</TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive btn-remove-participant"
+                          data-id={p.id}
+                          data-name={p.name}
+                        >
+                          Fjern
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p class="text-muted-foreground">Ingen deltakere registrert ennå.</p>
+          )}
+        </CardContent>
+      </Card>
+    </TabsContent>
+
+    <TabsContent value="matches">
+      <Card>
+        <CardHeader>
+          <CardTitle>Kamper</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {Object.keys(matchesByRound).length > 0 ? (
+            Object.entries(matchesByRound).map(([round, roundMatches]) => {
+              const roundCompleted = roundMatches.filter(m => m.winner_id !== null).length;
+              return (
+                <div class="mb-8 last:mb-0">
+                  <div class="flex items-center gap-2 mb-4">
+                    <h3 class="text-lg font-semibold">Runde {round}</h3>
+                    <Badge variant={roundCompleted === roundMatches.length ? 'default' : 'secondary'}>
+                      {roundCompleted}/{roundMatches.length}
+                    </Badge>
+                  </div>
+                  <div class="border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Spiller 1</TableHead>
+                          <TableHead>Spiller 2</TableHead>
+                          <TableHead>Resultat</TableHead>
+                          <TableHead className="w-[100px]">Handlinger</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {roundMatches.map(match => {
+                          const player1 = participantsMap[match.player1_id];
+                          const player2 = participantsMap[match.player2_id];
+                          const isPlayer1Winner = match.winner_id === match.player1_id;
+                          const isPlayer2Winner = match.winner_id === match.player2_id;
+                          
+                          return (
+                            <TableRow>
+                              <TableCell>
+                                <span class={isPlayer1Winner ? 'font-bold text-green-700' : ''}>
+                                  {player1?.name ?? 'Ukjent'}
+                                  {isPlayer1Winner && ' 🏆'}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <span class={isPlayer2Winner ? 'font-bold text-green-700' : ''}>
+                                  {player2?.name ?? 'Ukjent'}
+                                  {isPlayer2Winner && ' 🏆'}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                {match.winner_id !== null ? (
+                                  <Badge variant="default">
+                                    {match.player1_score} - {match.player2_score}
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline">Ikke spilt</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="btn-edit-match"
+                                  data-match={JSON.stringify(match)}
+                                  data-player1-name={player1?.name}
+                                  data-player2-name={player2?.name}
+                                >
+                                  {match.winner_id !== null ? 'Endre' : 'Registrer'}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p class="text-muted-foreground">
+              Ingen kamper generert. Start turneringen for å generere kamper.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </TabsContent>
+
+    <TabsContent value="standings">
+      <Card>
+        <CardHeader>
+          <CardTitle>Tabell</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {standings.length > 0 ? (
+            <div class="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Spiller</TableHead>
+                    <TableHead>Spilt</TableHead>
+                    <TableHead>Seire</TableHead>
+                    <TableHead>Tap</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {standings.map((standing, index) => (
+                    <TableRow>
+                      <TableCell>
+                        {index === 0 && '🥇 '}
+                        {index === 1 && '🥈 '}
+                        {index === 2 && '🥉 '}
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className={index < 3 ? 'font-bold' : ''}>
+                        {standing.participant.name}
+                      </TableCell>
+                      <TableCell>{standing.played}</TableCell>
+                      <TableCell className="text-green-600 font-medium">
+                        {standing.wins}
+                      </TableCell>
+                      <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>
+                        {standing.losses}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p class="text-muted-foreground">Ingen resultater ennå.</p>
+          )}
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
+
+  <Dialog id="edit-match-dialog">
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Registrer resultat</DialogTitle>
+        <DialogDescription id="match-dialog-names">
+        </DialogDescription>
+      </DialogHeader>
+      
+      <div class="grid grid-cols-2 gap-4 py-4">
+        <div class="space-y-2">
+          <Label htmlFor="score1" id="label-player1">Spiller 1</Label>
+          <Input
+            id="score1"
+            type="number"
+            min="0"
+          />
+        </div>
+        <div class="space-y-2">
+          <Label htmlFor="score2" id="label-player2">Spiller 2</Label>
+          <Input
+            id="score2"
+            type="number"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" data-dialog-close>
+          Avbryt
+        </Button>
+        <Button id="btn-save-match">
+          Lagre
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+</div>
+
+<script>
+  const adminContainer = document.getElementById('tournament-admin');
+  const tournamentId = parseInt(adminContainer?.dataset.tournamentId || '0');
+  const messageContainer = document.getElementById('admin-message');
+  const alertComponent = document.getElementById('admin-alert');
+  const alertText = document.getElementById('admin-alert-text');
+
+  function showMessage(text: string, type: 'success' | 'error') {
+    if (!messageContainer || !alertText || !alertComponent) return;
+    alertText.textContent = text;
+    if (type === 'error') {
+      alertComponent.setAttribute('data-variant', 'destructive');
+      alertComponent.classList.add('border-destructive', 'text-destructive');
+    } else {
+      alertComponent.setAttribute('data-variant', 'default');
+      alertComponent.classList.remove('border-destructive', 'text-destructive');
+    }
+    messageContainer.classList.remove('hidden');
+    setTimeout(() => {
+      messageContainer.classList.add('hidden');
+    }, 5000);
+  }
+
+  // Status updates
+  async function updateStatus(newStatus: string) {
+    try {
+      const response = await fetch('/api/tournaments', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: tournamentId, status: newStatus })
+      });
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        showMessage('Kunne ikke endre status', 'error');
+      }
+    } catch {
+      showMessage('Noe gikk galt', 'error');
+    }
+  }
+
+  document.getElementById('btn-start-tournament')?.addEventListener('click', () => updateStatus('active'));
+  document.getElementById('btn-complete-tournament')?.addEventListener('click', () => updateStatus('completed'));
+  document.getElementById('btn-reopen-tournament')?.addEventListener('click', () => updateStatus('active'));
+
+  // Delete tournament
+  document.getElementById('btn-delete-tournament')?.addEventListener('click', async () => {
+    if (!confirm('Er du sikker på at du vil slette denne turneringen? Dette kan ikke angres.')) return;
+    try {
+      const response = await fetch(`/api/tournaments?id=${tournamentId}`, { method: 'DELETE' });
+      if (response.ok) {
+        window.location.href = '/admin';
+      } else {
+        showMessage('Kunne ikke slette turnering', 'error');
+      }
+    } catch {
+      showMessage('Noe gikk galt', 'error');
+    }
+  });
+
+  // Remove participant
+  document.querySelectorAll('.btn-remove-participant').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = (e.currentTarget as HTMLElement).dataset.id;
+      const name = (e.currentTarget as HTMLElement).dataset.name;
+      if (!confirm(`Er du sikker på at du vil fjerne ${name}?`)) return;
+      try {
+        const response = await fetch(`/api/participants?id=${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          showMessage('Kunne ikke fjerne deltaker', 'error');
+        }
+      } catch {
+        showMessage('Noe gikk galt', 'error');
+      }
+    });
+  });
+
+  // Edit match result
+  const dialog = document.getElementById('edit-match-dialog') as any;
+  const matchNames = document.getElementById('match-dialog-names');
+  const labelPlayer1 = document.getElementById('label-player1');
+  const labelPlayer2 = document.getElementById('label-player2');
+  const inputScore1 = document.getElementById('score1') as HTMLInputElement;
+  const inputScore2 = document.getElementById('score2') as HTMLInputElement;
+  const btnSaveMatch = document.getElementById('btn-save-match');
+  let currentEditingMatch: any = null;
+
+  document.querySelectorAll('.btn-edit-match').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const match = JSON.parse((e.currentTarget as HTMLElement).dataset.match || '{}');
+      const p1Name = (e.currentTarget as HTMLElement).dataset.player1Name;
+      const p2Name = (e.currentTarget as HTMLElement).dataset.player2Name;
+      
+      currentEditingMatch = match;
+      if (matchNames) matchNames.textContent = `${p1Name} vs ${p2Name}`;
+      if (labelPlayer1) labelPlayer1.textContent = p1Name || 'Spiller 1';
+      if (labelPlayer2) labelPlayer2.textContent = p2Name || 'Spiller 2';
+      inputScore1.value = match.player1_score?.toString() ?? '';
+      inputScore2.value = match.player2_score?.toString() ?? '';
+      
+      // Starwind Dialog is usually triggered by data attributes or a class
+      // If it doesn't have a JS API, we might need to manually show it
+      // Standard Starwind behavior uses a script that listens for clicks
+      // But we can trigger it manually if we know how.
+      // Most of these components use a hidden/checkbox hack or a script.
+      // Let's try to find the trigger or manually toggle attributes.
+      dialog?.setAttribute('data-state', 'open');
+    });
+  });
+
+  document.querySelectorAll('[data-dialog-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      dialog?.removeAttribute('data-state');
+    });
+  });
+
+  btnSaveMatch?.addEventListener('click', async () => {
+    if (!currentEditingMatch) return;
+    
+    const score1 = parseInt(inputScore1.value);
+    const score2 = parseInt(inputScore2.value);
+    
+    if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
+      alert('Ugyldig resultat - bruk positive tall');
+      return;
+    }
+
+    if (score1 === score2) {
+      alert('Kampen må ha en vinner (uavgjort ikke tillatt)');
+      return;
+    }
+
+    const winnerId = score1 > score2 ? currentEditingMatch.player1_id : currentEditingMatch.player2_id;
+    
+    try {
+      const response = await fetch('/api/matches', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentEditingMatch.id,
+          player1Score: score1,
+          player2Score: score2,
+          winnerId,
+          playedAt: new Date().toISOString()
+        })
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Kunne ikke lagre resultat');
+      }
+    } catch {
+      alert('Noe gikk galt');
+    }
+  });
+</script>

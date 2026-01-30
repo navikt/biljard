@@ -1,8 +1,8 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getTournamentById, getParticipantsByTournament, getMatchesByTournament, getStandings } from '../../../lib/db';
-import TournamentAdmin from '../../../components/TournamentAdmin';
-import { Heading, Alert } from '@navikt/ds-react';
+import TournamentAdmin from '../../../components/TournamentAdmin.astro';
+import { Badge } from '@/components/ui/badge';
 
 const { id } = Astro.params;
 const tournamentId = parseInt(id || '0');
@@ -18,12 +18,15 @@ const standings = getStandings(tournamentId);
 ---
 
 <Layout title={`Admin: ${tournament.name}`}>
-  <div class="page-header">
-    <Heading level="1" size="xlarge">{tournament.name}</Heading>
-    <span class={`status-badge status-${tournament.status}`}>
+  <div class="flex items-center gap-4 flex-wrap mb-8">
+    <h1 class="text-4xl font-bold">{tournament.name}</h1>
+    <Badge variant={
+      tournament.status === 'registration' ? 'default' : 
+      tournament.status === 'active' ? 'secondary' : 'outline'
+    }>
       {tournament.status === 'registration' ? 'Påmelding' : 
        tournament.status === 'active' ? 'Pågår' : 'Avsluttet'}
-    </span>
+    </Badge>
   </div>
 
   <TournamentAdmin 
@@ -31,15 +34,5 @@ const standings = getStandings(tournamentId);
     participants={participants}
     matches={matches}
     standings={standings}
-    client:load 
   />
 </Layout>
-
-<style>
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: var(--a-spacing-4);
-    flex-wrap: wrap;
-  }
-</style>

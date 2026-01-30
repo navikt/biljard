@@ -1,14 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import CreateTournamentForm from '../../components/CreateTournamentForm';
-import { Heading, BodyLong } from '@navikt/ds-react';
+import CreateTournamentForm from '../../components/CreateTournamentForm.astro';
 ---
 
 <Layout title="Opprett turnering - Admin">
-  <div class="page-header">
-    <Heading level="1" size="xlarge">Opprett ny turnering</Heading>
-    <BodyLong>Fyll ut skjemaet for å opprette en ny biljardturnering</BodyLong>
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2">Opprett ny turnering</h1>
+    <p class="text-lg text-muted-foreground">Fyll ut skjemaet for å opprette en ny biljardturnering</p>
   </div>
 
-  <CreateTournamentForm client:load />
+  <CreateTournamentForm />
 </Layout>

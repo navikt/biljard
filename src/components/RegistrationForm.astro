@@ -1,0 +1,166 @@
+---
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface Props {
+  tournamentId: number;
+}
+
+const { tournamentId } = Astro.props;
+---
+
+<Card className="w-full">
+  <CardContent className="pt-6">
+    <div id="registration-message" class="hidden mb-6">
+      <Alert variant="default" id="alert-component">
+        <AlertTitle id="alert-title"></AlertTitle>
+        <AlertDescription id="alert-description"></AlertDescription>
+      </Alert>
+    </div>
+
+    <form id="registration-form" class="space-y-6" aria-label="Påmeldingsskjema">
+      <input type="hidden" name="tournamentId" value={tournamentId} />
+      
+      <div class="space-y-2">
+        <Label for="name">Navn</Label>
+        <Input
+          id="name"
+          name="name"
+          required
+          autoComplete="name"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <Label for="email">E-post</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+        />
+        <p class="text-sm text-muted-foreground">Vi sender kampinformasjon til denne adressen</p>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="slackHandle">Slack-brukernavn</Label>
+        <Input
+          id="slackHandle"
+          name="slackHandle"
+          autoComplete="off"
+        />
+        <p class="text-sm text-muted-foreground">Valgfritt, men anbefalt. F.eks. jonas.nicolaysen</p>
+      </div>
+
+      <div class="border rounded-lg p-4 bg-muted/50">
+        <div class="flex items-start gap-3">
+          <Checkbox 
+            id="confirm" 
+            name="confirm"
+            required
+          />
+          <div class="grid gap-1.5 leading-none">
+            <Label for="confirm" class="font-medium cursor-pointer">
+              Jeg bekrefter at jeg kan delta i turneringen
+            </Label>
+            <div class="text-sm text-muted-foreground">
+              <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li>Jeg vil følge med på #biljard i Slack</li>
+                <li>Jeg vil avtale kamptider med motstanderne mine</li>
+                <li>Jeg forstår at turneringen strekker seg over flere uker</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Button 
+        type="submit" 
+        id="submit-button"
+        className="w-full"
+      >
+        Meld meg på
+      </Button>
+    </form>
+  </CardContent>
+</Card>
+
+<script>
+  const form = document.getElementById('registration-form') as HTMLFormElement;
+  const messageContainer = document.getElementById('registration-message');
+  const alertComponent = document.getElementById('alert-component');
+  const alertTitle = document.getElementById('alert-title');
+  const alertDescription = document.getElementById('alert-description');
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const data = {
+      tournamentId: parseInt(formData.get('tournamentId') as string),
+      name: (formData.get('name') as string).trim(),
+      email: (formData.get('email') as string).trim().toLowerCase(),
+      slackHandle: (formData.get('slackHandle') as string).trim() || undefined
+    };
+
+    if (!formData.get('confirm')) {
+      showMessage('Feil', 'Du må bekrefte at du har lest informasjonen', 'error');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        showMessage('Suksess!', 'Du er nå påmeldt turneringen! Du vil motta informasjon på e-post.', 'success');
+        form.reset();
+        form.classList.add('hidden');
+      } else {
+        showMessage('Feil', result.error ?? 'Noe gikk galt. Prøv igjen.', 'error');
+      }
+    } catch (error) {
+      showMessage('Feil', 'Kunne ikke koble til serveren. Prøv igjen senere.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  function showMessage(title: string, description: string, type: 'success' | 'error') {
+    if (!messageContainer || !alertTitle || !alertDescription || !alertComponent) return;
+    
+    alertTitle.textContent = title;
+    alertDescription.textContent = description;
+    
+    // Starwind Alert variants might need adjustment if they use specific classes
+    if (type === 'error') {
+      alertComponent.setAttribute('data-variant', 'destructive');
+      alertComponent.classList.add('border-destructive', 'text-destructive');
+    } else {
+      alertComponent.setAttribute('data-variant', 'default');
+      alertComponent.classList.remove('border-destructive', 'text-destructive');
+    }
+    
+    messageContainer.classList.remove('hidden');
+    messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function setLoading(isLoading: boolean) {
+    if (!submitButton) return;
+    submitButton.disabled = isLoading;
+    submitButton.textContent = isLoading ? 'Melder på...' : 'Meld meg på';
+  }
+</script>

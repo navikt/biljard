@@ -1,0 +1,252 @@
+---
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const tournamentTypeDescriptions: Record<string, string> = {
+  'round-robin': 'Alle spiller mot alle over flere runder. Best for sosiale turneringer.',
+  'knockout': 'Tap én kamp og du er ute. Best for korte, intensive turneringer.',
+  'swiss': 'Spillere med lik poengsum møtes. God balanse mellom lengde og rettferdighet.',
+};
+---
+
+<Card className="max-w-[600px] w-full">
+  <CardHeader>
+    <CardTitle>Opprett turnering</CardTitle>
+    <CardDescription>Fyll ut detaljene for å starte en ny turnering</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div id="tournament-message" class="hidden mb-6">
+      <Alert variant="default" id="alert-component">
+        <AlertTitle id="alert-title"></AlertTitle>
+        <AlertDescription id="alert-description"></AlertDescription>
+      </Alert>
+    </div>
+
+    <form 
+      id="create-tournament-form"
+      className="space-y-6"
+      aria-label="Opprett turnering"
+    >
+      <div class="space-y-2">
+        <Label for="name">Turneringsnavn</Label>
+        <Input
+          id="name"
+          name="name"
+          placeholder="F.eks. Vårens biljardturnering 2026"
+          required
+        />
+      </div>
+
+      <div class="space-y-2">
+        <Label for="description">Beskrivelse</Label>
+        <Textarea
+          id="description"
+          name="description"
+          placeholder="Beskriv turneringen, regler, premier osv..."
+          rows={5}
+        />
+        <p class="text-sm text-muted-foreground">Informasjon som vises til deltakerne</p>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="type">Turneringstype</Label>
+        <Select name="type" defaultValue="round-robin">
+          <SelectTrigger id="type">
+            <SelectValue placeholder="Velg type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="round-robin">Round Robin (alle mot alle)</SelectItem>
+            <SelectItem value="knockout">Utslagsturnering</SelectItem>
+            <SelectItem value="swiss">Swiss-system</SelectItem>
+          </SelectContent>
+        </Select>
+        <p id="type-description" class="text-sm text-muted-foreground">{tournamentTypeDescriptions['round-robin']}</p>
+      </div>
+
+      <fieldset class="border-0 p-0 m-0 space-y-4">
+        <legend class="font-bold text-sm mb-2 flex items-center gap-2">
+          Turneringslengde
+          <span id="estimated-duration" class="font-normal text-muted-foreground text-xs hidden"></span>
+        </legend>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <Label for="rounds">Antall runder</Label>
+            <Input
+              id="rounds"
+              name="rounds"
+              type="number"
+              defaultValue="10"
+              min="1"
+              max="20"
+              required
+            />
+          </div>
+          <div class="space-y-2">
+            <Label for="roundDurationWeeks">Uker per runde</Label>
+            <Input
+              id="roundDurationWeeks"
+              name="roundDurationWeeks"
+              type="number"
+              defaultValue="2"
+              min="1"
+              max="4"
+              required
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="space-y-2">
+        <Label for="registrationDeadline">Påmeldingsfrist</Label>
+        <Input
+          id="registrationDeadline"
+          name="registrationDeadline"
+          type="datetime-local"
+        />
+        <p class="text-sm text-muted-foreground">Når påmeldingen stenger</p>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="startDate">Oppstartsdato</Label>
+        <Input
+          id="startDate"
+          name="startDate"
+          type="date"
+        />
+        <p class="text-sm text-muted-foreground">Når første runde starter</p>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <Button type="submit" id="submit-button">
+          Opprett turnering
+        </Button>
+        <Button variant="outline" type="button" href="/admin">
+          Avbryt
+        </Button>
+      </div>
+    </form>
+  </CardContent>
+</Card>
+
+<script>
+  const form = document.getElementById('create-tournament-form') as HTMLFormElement;
+  const messageContainer = document.getElementById('tournament-message');
+  const alertComponent = document.getElementById('alert-component');
+  const alertTitle = document.getElementById('alert-title');
+  const alertDescription = document.getElementById('alert-description');
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+  const typeSelect = document.querySelector('select[name="type"]') as HTMLSelectElement;
+  const typeDescription = document.getElementById('type-description');
+  const roundsInput = document.getElementById('rounds') as HTMLInputElement;
+  const weeksInput = document.getElementById('roundDurationWeeks') as HTMLInputElement;
+  const durationLabel = document.getElementById('estimated-duration');
+
+  const descriptions: Record<string, string> = {
+    'round-robin': 'Alle spiller mot alle over flere runder. Best for sosiale turneringer.',
+    'knockout': 'Tap én kamp og du er ute. Best for korte, intensive turneringer.',
+    'swiss': 'Spillere med lik poengsum møtes. God balanse mellom lengde og rettferdighet.',
+  };
+
+  // Update description when type changes
+  typeSelect?.addEventListener('change', (e) => {
+    const val = (e.target as HTMLSelectElement).value;
+    if (typeDescription) typeDescription.textContent = descriptions[val] || '';
+  });
+
+  // Update estimated duration
+  const updateDuration = () => {
+    const rounds = parseInt(roundsInput.value);
+    const weeks = parseInt(weeksInput.value);
+    if (!isNaN(rounds) && !isNaN(weeks) && durationLabel) {
+      durationLabel.textContent = `(ca. ${rounds * weeks} uker)`;
+      durationLabel.classList.remove('hidden');
+    }
+  };
+
+  roundsInput?.addEventListener('input', updateDuration);
+  weeksInput?.addEventListener('input', updateDuration);
+  updateDuration();
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    
+    // Manual validation
+    const name = (formData.get('name') as string).trim();
+    if (!name) {
+      showMessage('Feil', 'Turneringsnavn er påkrevd', 'error');
+      return;
+    }
+
+    const data = {
+      name,
+      description: (formData.get('description') as string).trim() || undefined,
+      type: formData.get('type'),
+      rounds: parseInt(formData.get('rounds') as string),
+      roundDurationWeeks: parseInt(formData.get('roundDurationWeeks') as string),
+      registrationDeadline: formData.get('registrationDeadline') || undefined,
+      startDate: formData.get('startDate') || undefined
+    };
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/tournaments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.tournamentId) {
+        showMessage('Suksess!', 'Turneringen er opprettet! Du blir videresendt...', 'success');
+        setTimeout(() => {
+          window.location.href = `/admin/turnering/${result.tournamentId}`;
+        }, 1000);
+      } else {
+        showMessage('Feil', result.error ?? 'Noe gikk galt. Prøv igjen.', 'error');
+      }
+    } catch (error) {
+      showMessage('Feil', 'Kunne ikke koble til serveren. Prøv igjen senere.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  function showMessage(title: string, description: string, type: 'success' | 'error') {
+    if (!messageContainer || !alertTitle || !alertDescription || !alertComponent) return;
+    
+    alertTitle.textContent = title;
+    alertDescription.textContent = description;
+    
+    if (type === 'error') {
+      alertComponent.setAttribute('data-variant', 'destructive');
+      alertComponent.classList.add('border-destructive', 'text-destructive');
+    } else {
+      alertComponent.setAttribute('data-variant', 'default');
+      alertComponent.classList.remove('border-destructive', 'text-destructive');
+    }
+    
+    messageContainer.classList.remove('hidden');
+    messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function setLoading(isLoading: boolean) {
+    if (!submitButton) return;
+    submitButton.disabled = isLoading;
+    submitButton.textContent = isLoading ? 'Oppretter...' : 'Opprett turnering';
+  }
+</script>

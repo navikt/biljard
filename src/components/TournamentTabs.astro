@@ -1,0 +1,142 @@
+---
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+interface Tournament {
+  id: number;
+  name: string;
+  description?: string;
+  status: string;
+  registration_deadline?: string;
+  start_date?: string;
+  end_date?: string;
+  rounds: number;
+  round_duration_weeks: number;
+}
+
+interface Props {
+  registrationOpen: Tournament[];
+  active: Tournament[];
+  completed: Tournament[];
+}
+
+const { registrationOpen, active, completed } = Astro.props;
+
+const formatDate = (dateString?: string, includeTime = false) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('nb-NO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    ...(includeTime && { hour: '2-digit', minute: '2-digit' })
+  });
+};
+---
+
+<Tabs defaultValue="registration" className="w-full">
+  <TabsList className="grid w-full grid-cols-3 mb-6">
+    <TabsTrigger value="registration">Påmelding ({registrationOpen.length})</TabsTrigger>
+    <TabsTrigger value="active">Pågående ({active.length})</TabsTrigger>
+    <TabsTrigger value="completed">Avsluttet ({completed.length})</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="registration">
+    {registrationOpen.length === 0 ? (
+      <div class="text-center p-10 text-muted-foreground bg-muted/30 rounded-md">
+        <p>Ingen turneringer med åpen påmelding for øyeblikket.</p>
+      </div>
+    ) : (
+      <div class="grid gap-4">
+        {registrationOpen.map((tournament) => (
+          <a href={`/turnering/${tournament.id}`} class="block no-underline group">
+            <Card className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div class="flex justify-between items-start gap-4">
+                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <Badge variant="default">Påmelding åpen</Badge>
+                </div>
+                <CardDescription>
+                  <div class="flex flex-wrap gap-x-6 gap-y-2 mb-2 text-sm text-muted-foreground">
+                    {tournament.registration_deadline && (
+                      <span>Frist: {formatDate(tournament.registration_deadline, true)}</span>
+                    )}
+                    <span>📅 {tournament.rounds} runder</span>
+                    <span>⏱️ {tournament.round_duration_weeks} uker/runde</span>
+                  </div>
+                  <p class="text-foreground">{tournament.description}</p>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </a>
+        ))}
+      </div>
+    )}
+  </TabsContent>
+
+  <TabsContent value="active">
+    {active.length === 0 ? (
+      <div class="text-center p-10 text-muted-foreground bg-muted/30 rounded-md">
+        <p>Ingen pågående turneringer.</p>
+      </div>
+    ) : (
+      <div class="grid gap-4">
+        {active.map((tournament) => (
+          <a href={`/turnering/${tournament.id}`} class="block no-underline group">
+            <Card className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div class="flex justify-between items-start gap-4">
+                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <Badge variant="secondary">Pågår</Badge>
+                </div>
+                <CardDescription>
+                  <div class="flex flex-wrap gap-x-6 gap-y-2 mb-2 text-sm text-muted-foreground">
+                    {tournament.start_date && (
+                      <span>Startet: {formatDate(tournament.start_date)}</span>
+                    )}
+                    <span>📅 {tournament.rounds} runder</span>
+                    <span>⏱️ {tournament.round_duration_weeks} uker/runde</span>
+                  </div>
+                  <p class="text-foreground">{tournament.description}</p>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </a>
+        ))}
+      </div>
+    )}
+  </TabsContent>
+
+  <TabsContent value="completed">
+    {completed.length === 0 ? (
+      <div class="text-center p-10 text-muted-foreground bg-muted/30 rounded-md">
+        <p>Ingen avsluttede turneringer ennå.</p>
+      </div>
+    ) : (
+      <div class="grid gap-4">
+        {completed.map((tournament) => (
+          <a href={`/turnering/${tournament.id}`} class="block no-underline group">
+            <Card className="hover:border-primary/50 transition-colors">
+              <CardHeader>
+                <div class="flex justify-between items-start gap-4">
+                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <Badge variant="outline">Avsluttet</Badge>
+                </div>
+                <CardDescription>
+                  <div class="flex flex-wrap gap-x-6 gap-y-2 mb-2 text-sm text-muted-foreground">
+                    {tournament.end_date && (
+                      <span>Avsluttet: {formatDate(tournament.end_date)}</span>
+                    )}
+                    <span>📅 {tournament.rounds} runder</span>
+                    <span>⏱️ {tournament.round_duration_weeks} uker/runde</span>
+                  </div>
+                  <p class="text-foreground">{tournament.description}</p>
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </a>
+        ))}
+      </div>
+    )}
+  </TabsContent>
+</Tabs>
