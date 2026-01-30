@@ -1,0 +1,45 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getTournamentById, getParticipantsByTournament, getMatchesByTournament, getStandings } from '../../../lib/db';
+import TournamentAdmin from '../../../components/TournamentAdmin';
+import { Heading, Alert } from '@navikt/ds-react';
+
+const { id } = Astro.params;
+const tournamentId = parseInt(id || '0');
+const tournament = getTournamentById(tournamentId);
+
+if (!tournament) {
+  return Astro.redirect('/admin');
+}
+
+const participants = getParticipantsByTournament(tournamentId);
+const matches = getMatchesByTournament(tournamentId);
+const standings = getStandings(tournamentId);
+---
+
+<Layout title={`Admin: ${tournament.name}`}>
+  <div class="page-header">
+    <Heading level="1" size="xlarge">{tournament.name}</Heading>
+    <span class={`status-badge status-${tournament.status}`}>
+      {tournament.status === 'registration' ? 'Påmelding' : 
+       tournament.status === 'active' ? 'Pågår' : 'Avsluttet'}
+    </span>
+  </div>
+
+  <TournamentAdmin 
+    tournament={tournament}
+    participants={participants}
+    matches={matches}
+    standings={standings}
+    client:load 
+  />
+</Layout>
+
+<style>
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: var(--a-spacing-4);
+    flex-wrap: wrap;
+  }
+</style>

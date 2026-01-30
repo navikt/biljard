@@ -1,0 +1,217 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getAllTournaments } from '../lib/db';
+import { Heading, BodyLong, LinkPanel, Tabs } from '@navikt/ds-react';
+
+const tournaments = getAllTournaments();
+const registrationOpen = tournaments.filter(t => t.status === 'registration');
+const active = tournaments.filter(t => t.status === 'active');
+const completed = tournaments.filter(t => t.status === 'completed');
+---
+
+<Layout title="Turneringer - Biljardturnering">
+  <div class="page-header">
+    <Heading level="1" size="xlarge">Turneringer</Heading>
+    <BodyLong>Oversikt over alle biljardturneringer</BodyLong>
+  </div>
+
+  <div class="tabs-container">
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="registration">
+        Påmelding åpen ({registrationOpen.length})
+      </button>
+      <button class="tab-button" data-tab="active">
+        Pågående ({active.length})
+      </button>
+      <button class="tab-button" data-tab="completed">
+        Avsluttede ({completed.length})
+      </button>
+    </div>
+
+    <div class="tab-content active" id="tab-registration">
+      {registrationOpen.length > 0 ? (
+        <div class="tournament-list">
+          {registrationOpen.map((tournament) => (
+            <LinkPanel href={`/turnering/${tournament.id}`} className="tournament-panel">
+              <LinkPanel.Title>{tournament.name}</LinkPanel.Title>
+              <LinkPanel.Description>
+                <div class="tournament-meta">
+                  <span class="status-badge status-registration">Påmelding åpen</span>
+                  {tournament.registration_deadline && (
+                    <span class="deadline">
+                      Frist: {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  )}
+                </div>
+                <p class="tournament-description">{tournament.description}</p>
+                <div class="tournament-info">
+                  <span>📅 {tournament.rounds} runder</span>
+                  <span>⏱️ {tournament.round_duration_weeks} uker per runde</span>
+                </div>
+              </LinkPanel.Description>
+            </LinkPanel>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>Ingen turneringer med åpen påmelding for øyeblikket.</p>
+        </div>
+      )}
+    </div>
+
+    <div class="tab-content" id="tab-active">
+      {active.length > 0 ? (
+        <div class="tournament-list">
+          {active.map((tournament) => (
+            <LinkPanel href={`/turnering/${tournament.id}`} className="tournament-panel">
+              <LinkPanel.Title>{tournament.name}</LinkPanel.Title>
+              <LinkPanel.Description>
+                <div class="tournament-meta">
+                  <span class="status-badge status-active">Pågår</span>
+                  {tournament.start_date && (
+                    <span>Startet: {new Date(tournament.start_date).toLocaleDateString('nb-NO')}</span>
+                  )}
+                </div>
+                <p class="tournament-description">{tournament.description}</p>
+              </LinkPanel.Description>
+            </LinkPanel>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>Ingen pågående turneringer.</p>
+        </div>
+      )}
+    </div>
+
+    <div class="tab-content" id="tab-completed">
+      {completed.length > 0 ? (
+        <div class="tournament-list">
+          {completed.map((tournament) => (
+            <LinkPanel href={`/turnering/${tournament.id}`} className="tournament-panel">
+              <LinkPanel.Title>{tournament.name}</LinkPanel.Title>
+              <LinkPanel.Description>
+                <div class="tournament-meta">
+                  <span class="status-badge status-completed">Avsluttet</span>
+                  {tournament.end_date && (
+                    <span>Avsluttet: {new Date(tournament.end_date).toLocaleDateString('nb-NO')}</span>
+                  )}
+                </div>
+                <p class="tournament-description">{tournament.description}</p>
+              </LinkPanel.Description>
+            </LinkPanel>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>Ingen avsluttede turneringer ennå.</p>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const tab = button.getAttribute('data-tab');
+      
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      button.classList.add('active');
+      document.getElementById(`tab-${tab}`)?.classList.add('active');
+    });
+  });
+</script>
+
+<style>
+  .tabs-container {
+    margin-top: var(--a-spacing-6);
+  }
+
+  .tab-buttons {
+    display: flex;
+    gap: var(--a-spacing-1);
+    border-bottom: 1px solid var(--a-border-subtle);
+    margin-bottom: var(--a-spacing-6);
+  }
+
+  .tab-button {
+    padding: var(--a-spacing-3) var(--a-spacing-4);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: var(--a-font-size-medium);
+    color: var(--a-text-subtle);
+    transition: all 0.2s;
+  }
+
+  .tab-button:hover {
+    color: var(--a-text-default);
+  }
+
+  .tab-button.active {
+    color: var(--a-text-action);
+    border-bottom-color: var(--a-border-action);
+    font-weight: var(--a-font-weight-bold);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .tournament-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--a-spacing-4);
+  }
+
+  .tournament-panel {
+    border: 1px solid var(--a-border-subtle);
+    border-radius: var(--a-border-radius-medium);
+  }
+
+  .tournament-meta {
+    display: flex;
+    gap: var(--a-spacing-4);
+    align-items: center;
+    margin-bottom: var(--a-spacing-2);
+  }
+
+  .deadline {
+    color: var(--a-text-subtle);
+    font-size: var(--a-font-size-small);
+  }
+
+  .tournament-description {
+    margin: var(--a-spacing-2) 0;
+    color: var(--a-text-subtle);
+  }
+
+  .tournament-info {
+    display: flex;
+    gap: var(--a-spacing-4);
+    font-size: var(--a-font-size-small);
+    color: var(--a-text-subtle);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--a-spacing-10);
+    color: var(--a-text-subtle);
+    background: var(--a-surface-subtle);
+    border-radius: var(--a-border-radius-medium);
+  }
+</style>

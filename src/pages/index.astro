@@ -1,0 +1,138 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getAllTournaments } from '../lib/db';
+import { Alert, Heading, BodyLong, Button, LinkPanel } from '@navikt/ds-react';
+
+const tournaments = getAllTournaments();
+const activeTournaments = tournaments.filter(t => t.status === 'registration' || t.status === 'active');
+---
+
+<Layout title="Biljardturnering - NAV">
+  <div class="hero">
+    <Heading level="1" size="xlarge">Velkommen til Biljardturneringen! 🎱</Heading>
+    <BodyLong size="large" className="hero-text">
+      Hvert semester arrangerer vi en biljardturnering! Alle nivåer av ferdighet er hjertelig velkomne. 
+      Vi legger vekt på at dette er et sosialt arrangement som lar deg støte på kollegaer fra alle kriker og kroker! 🤩
+    </BodyLong>
+  </div>
+
+  {activeTournaments.length > 0 ? (
+    <section class="section">
+      <Heading level="2" size="large" spacing>Aktive turneringer</Heading>
+      <div class="card-grid">
+        {activeTournaments.map((tournament) => (
+          <LinkPanel href={`/turnering/${tournament.id}`} className="tournament-card">
+            <LinkPanel.Title>
+              {tournament.name}
+            </LinkPanel.Title>
+            <LinkPanel.Description>
+              <span class={`status-badge status-${tournament.status}`}>
+                {tournament.status === 'registration' ? 'Påmelding åpen' : 'Pågår'}
+              </span>
+              <p>{tournament.description}</p>
+              {tournament.registration_deadline && tournament.status === 'registration' && (
+                <p><strong>Påmeldingsfrist:</strong> {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO')}</p>
+              )}
+            </LinkPanel.Description>
+          </LinkPanel>
+        ))}
+      </div>
+    </section>
+  ) : (
+    <Alert variant="info" className="info-alert">
+      <Heading spacing size="small" level="3">Ingen aktive turneringer</Heading>
+      Det er for øyeblikket ingen aktive turneringer. Sjekk tilbake senere eller kontakt en administrator.
+    </Alert>
+  )}
+
+  <section class="info-section">
+    <Heading level="2" size="large" spacing>Slik fungerer det</Heading>
+    <div class="info-grid">
+      <div class="card">
+        <Heading level="3" size="medium" spacing>📝 Meld deg på</Heading>
+        <BodyLong>
+          Finn en aktiv turnering og registrer deg med navn og e-post. 
+          Påmeldingen er åpen frem til fristen.
+        </BodyLong>
+      </div>
+      <div class="card">
+        <Heading level="3" size="medium" spacing>🎯 Spill kampene</Heading>
+        <BodyLong>
+          Du vil få tildelt motstandere gjennom turneringen. 
+          Dere avtaler selv tid og sted for kampene.
+        </BodyLong>
+      </div>
+      <div class="card">
+        <Heading level="3" size="medium" spacing>🏆 Følg med på resultater</Heading>
+        <BodyLong>
+          Resultater rapporteres av admin og du kan følge med på stillingen underveis i turneringen.
+        </BodyLong>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <Heading level="2" size="large" spacing>Bli med i #biljard på Slack! 💬</Heading>
+    <BodyLong>
+      For mer informasjon og oppdateringer om turneringene, bli med i Slack-kanalen #biljard.
+    </BodyLong>
+    <div class="button-group">
+      <a href="/turneringer">
+        <Button variant="primary">Se alle turneringer</Button>
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: var(--a-spacing-12) 0;
+    background: linear-gradient(135deg, var(--a-blue-50) 0%, var(--a-surface-default) 100%);
+    border-radius: var(--a-border-radius-large);
+    margin-bottom: var(--a-spacing-8);
+    padding-left: var(--a-spacing-6);
+    padding-right: var(--a-spacing-6);
+  }
+
+  .hero-text {
+    max-width: 700px;
+    margin: var(--a-spacing-4) auto 0;
+    color: var(--a-text-subtle);
+  }
+
+  .section {
+    margin-bottom: var(--a-spacing-10);
+  }
+
+  .info-section {
+    margin: var(--a-spacing-10) 0;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--a-spacing-4);
+  }
+
+  .info-alert {
+    margin: var(--a-spacing-8) 0;
+  }
+
+  .cta-section {
+    text-align: center;
+    padding: var(--a-spacing-10);
+    background: var(--a-surface-subtle);
+    border-radius: var(--a-border-radius-large);
+    margin-top: var(--a-spacing-8);
+  }
+
+  .cta-section .button-group {
+    justify-content: center;
+    margin-top: var(--a-spacing-6);
+  }
+
+  .tournament-card {
+    margin-bottom: var(--a-spacing-2);
+  }
+</style>

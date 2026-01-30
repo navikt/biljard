@@ -1,0 +1,113 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAllTournaments } from '../../lib/db';
+import { Heading, BodyLong, Button, LinkPanel, Alert } from '@navikt/ds-react';
+
+const tournaments = getAllTournaments();
+---
+
+<Layout title="Admin - Biljardturnering">
+  <div class="page-header">
+    <Heading level="1" size="xlarge">Administrasjon</Heading>
+    <BodyLong>Administrer turneringer, deltakere og resultater</BodyLong>
+  </div>
+
+  <div class="admin-actions">
+    <a href="/admin/ny-turnering">
+      <Button variant="primary">+ Opprett ny turnering</Button>
+    </a>
+  </div>
+
+  <section class="tournaments-section">
+    <Heading level="2" size="large" spacing>Turneringer</Heading>
+    
+    {tournaments.length > 0 ? (
+      <div class="tournament-list">
+        {tournaments.map((tournament) => (
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div>
+                <Heading level="3" size="medium">{tournament.name}</Heading>
+                <span class={`status-badge status-${tournament.status}`}>
+                  {tournament.status === 'registration' ? 'Påmelding' : 
+                   tournament.status === 'active' ? 'Pågår' : 'Avsluttet'}
+                </span>
+              </div>
+              <div class="admin-card-actions">
+                <a href={`/admin/turnering/${tournament.id}`}>
+                  <Button variant="secondary" size="small">Administrer</Button>
+                </a>
+                <a href={`/turnering/${tournament.id}`}>
+                  <Button variant="tertiary" size="small">Se turnering</Button>
+                </a>
+              </div>
+            </div>
+            <div class="admin-card-info">
+              <span>📅 {tournament.rounds} runder</span>
+              <span>⏱️ {tournament.round_duration_weeks} uker/runde</span>
+              {tournament.registration_deadline && (
+                <span>🗓️ Frist: {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO')}</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <Alert variant="info">
+        Ingen turneringer opprettet ennå. Klikk "Opprett ny turnering" for å komme i gang.
+      </Alert>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .admin-actions {
+    margin-bottom: var(--a-spacing-8);
+  }
+
+  .tournaments-section {
+    margin-top: var(--a-spacing-6);
+  }
+
+  .tournament-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--a-spacing-4);
+  }
+
+  .admin-card {
+    background: var(--a-surface-default);
+    border: 1px solid var(--a-border-subtle);
+    border-radius: var(--a-border-radius-medium);
+    padding: var(--a-spacing-5);
+  }
+
+  .admin-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--a-spacing-4);
+    flex-wrap: wrap;
+  }
+
+  .admin-card-header > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: var(--a-spacing-3);
+    flex-wrap: wrap;
+  }
+
+  .admin-card-actions {
+    display: flex;
+    gap: var(--a-spacing-2);
+  }
+
+  .admin-card-info {
+    display: flex;
+    gap: var(--a-spacing-4);
+    margin-top: var(--a-spacing-3);
+    color: var(--a-text-subtle);
+    font-size: var(--a-font-size-small);
+    flex-wrap: wrap;
+  }
+</style>

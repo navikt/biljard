@@ -1,0 +1,302 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getTournamentById, getParticipantsByTournament, getMatchesByTournament, getStandings } from '../../lib/db';
+import RegistrationForm from '../../components/RegistrationForm';
+import { Heading, BodyLong, Alert, Table } from '@navikt/ds-react';
+
+const { id } = Astro.params;
+const tournamentId = parseInt(id || '0');
+const tournament = getTournamentById(tournamentId);
+
+if (!tournament) {
+  return Astro.redirect('/turneringer');
+}
+
+const participants = getParticipantsByTournament(tournamentId);
+const matches = getMatchesByTournament(tournamentId);
+const standings = getStandings(tournamentId);
+
+const isRegistrationOpen = tournament.status === 'registration' && 
+  (!tournament.registration_deadline || new Date(tournament.registration_deadline) > new Date());
+
+const matchesByRound: Record<number, typeof matches> = {};
+matches.forEach(match => {
+  if (!matchesByRound[match.round]) {
+    matchesByRound[match.round] = [];
+  }
+  matchesByRound[match.round].push(match);
+});
+
+const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
+---
+
+<Layout title={`${tournament.name} - Biljardturnering`}>
+  <div class="page-header">
+    <Heading level="1" size="xlarge">{tournament.name}</Heading>
+    <span class={`status-badge status-${tournament.status}`}>
+      {tournament.status === 'registration' ? 'Påmelding åpen' : 
+       tournament.status === 'active' ? 'Pågår' : 'Avsluttet'}
+    </span>
+  </div>
+
+  {tournament.description && (
+    <div class="description-card card">
+      <BodyLong>{tournament.description}</BodyLong>
+    </div>
+  )}
+
+  <div class="tournament-info card">
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Antall runder</span>
+        <span class="info-value">{tournament.rounds}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Varighet per runde</span>
+        <span class="info-value">{tournament.round_duration_weeks} uker</span>
+      </div>
+      {tournament.registration_deadline && (
+        <div class="info-item">
+          <span class="info-label">Påmeldingsfrist</span>
+          <span class="info-value">
+            {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </span>
+        </div>
+      )}
+      {tournament.start_date && (
+        <div class="info-item">
+          <span class="info-label">Oppstart</span>
+          <span class="info-value">{new Date(tournament.start_date).toLocaleDateString('nb-NO')}</span>
+        </div>
+      )}
+      <div class="info-item">
+        <span class="info-label">Påmeldte</span>
+        <span class="info-value">{participants.length} deltakere</span>
+      </div>
+    </div>
+  </div>
+
+  {isRegistrationOpen && (
+    <section class="registration-section">
+      <Heading level="2" size="large" spacing>Meld deg på</Heading>
+      <RegistrationForm tournamentId={tournamentId} client:load />
+    </section>
+  )}
+
+  {!isRegistrationOpen && tournament.status === 'registration' && (
+    <Alert variant="warning">
+      Påmeldingsfristen har utløpt. Kontakt administrator hvis du ønsker å delta.
+    </Alert>
+  )}
+
+  {standings.length > 0 && (tournament.status === 'active' || tournament.status === 'completed') && (
+    <section class="standings-section">
+      <Heading level="2" size="large" spacing>Tabell</Heading>
+      <div class="card table-container">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell scope="col">#</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Spiller</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Spilt</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Seire</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Tap</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {standings.map((standing, index) => (
+              <Table.Row>
+                <Table.DataCell>{index + 1}</Table.DataCell>
+                <Table.DataCell>{standing.participant.name}</Table.DataCell>
+                <Table.DataCell>{standing.played}</Table.DataCell>
+                <Table.DataCell>{standing.wins}</Table.DataCell>
+                <Table.DataCell>{standing.losses}</Table.DataCell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
+    </section>
+  )}
+
+  {Object.keys(matchesByRound).length > 0 && (
+    <section class="matches-section">
+      <Heading level="2" size="large" spacing>Kamper</Heading>
+      {Object.entries(matchesByRound).map(([round, roundMatches]) => (
+        <div class="round-card card">
+          <Heading level="3" size="medium" spacing>Runde {round}</Heading>
+          <div class="matches-list">
+            {roundMatches.map(match => {
+              const player1 = participantsMap[match.player1_id];
+              const player2 = participantsMap[match.player2_id];
+              const hasResult = match.winner_id !== null;
+              
+              return (
+                <div class={`match-item ${hasResult ? 'completed' : ''}`}>
+                  <div class="match-players">
+                    <span class={match.winner_id === match.player1_id ? 'winner' : ''}>
+                      {player1?.name || 'Ukjent'}
+                    </span>
+                    <span class="vs">vs</span>
+                    <span class={match.winner_id === match.player2_id ? 'winner' : ''}>
+                      {player2?.name || 'Ukjent'}
+                    </span>
+                  </div>
+                  {hasResult && (
+                    <div class="match-score">
+                      {match.player1_score} - {match.player2_score}
+                    </div>
+                  )}
+                  {!hasResult && (
+                    <div class="match-pending">Ikke spilt</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </section>
+  )}
+
+  {participants.length > 0 && (
+    <section class="participants-section">
+      <Heading level="2" size="large" spacing>Påmeldte ({participants.length})</Heading>
+      <div class="card">
+        <ul class="participants-list">
+          {participants.map(p => (
+            <li>
+              <span class="participant-name">{p.name}</span>
+              {p.slack_handle && <span class="participant-slack">@{p.slack_handle}</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: var(--a-spacing-4);
+    flex-wrap: wrap;
+  }
+
+  .description-card {
+    margin-bottom: var(--a-spacing-6);
+  }
+
+  .tournament-info {
+    margin-bottom: var(--a-spacing-8);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--a-spacing-4);
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--a-spacing-1);
+  }
+
+  .info-label {
+    font-size: var(--a-font-size-small);
+    color: var(--a-text-subtle);
+  }
+
+  .info-value {
+    font-weight: var(--a-font-weight-bold);
+  }
+
+  .registration-section,
+  .standings-section,
+  .matches-section,
+  .participants-section {
+    margin-top: var(--a-spacing-8);
+  }
+
+  .round-card {
+    margin-bottom: var(--a-spacing-4);
+  }
+
+  .matches-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--a-spacing-3);
+  }
+
+  .match-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--a-spacing-3);
+    background: var(--a-surface-subtle);
+    border-radius: var(--a-border-radius-medium);
+  }
+
+  .match-item.completed {
+    background: var(--a-green-50);
+  }
+
+  .match-players {
+    display: flex;
+    align-items: center;
+    gap: var(--a-spacing-3);
+  }
+
+  .match-players .winner {
+    font-weight: var(--a-font-weight-bold);
+    color: var(--a-green-700);
+  }
+
+  .vs {
+    color: var(--a-text-subtle);
+    font-size: var(--a-font-size-small);
+  }
+
+  .match-score {
+    font-weight: var(--a-font-weight-bold);
+    background: var(--a-surface-default);
+    padding: var(--a-spacing-1) var(--a-spacing-3);
+    border-radius: var(--a-border-radius-medium);
+  }
+
+  .match-pending {
+    color: var(--a-text-subtle);
+    font-size: var(--a-font-size-small);
+  }
+
+  .participants-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--a-spacing-3);
+  }
+
+  .participants-list li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .participant-name {
+    font-weight: var(--a-font-weight-bold);
+  }
+
+  .participant-slack {
+    font-size: var(--a-font-size-small);
+    color: var(--a-text-subtle);
+  }
+</style>
