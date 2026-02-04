@@ -2,9 +2,7 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: biljardturnering
-  namespace: # TODO: Add your team namespace
-  labels:
-    team: # TODO: Add your team name
+  namespace: bussfaktor
 spec:
   image: "{{ image }}"
   port: 8080
@@ -29,7 +27,7 @@ spec:
       allowAllUsers: true
       claims:
         groups:
-          - id: "TODO-ADMIN-GROUP-ID" # Replace with your admin AD group ID
+          - id: "55a93a3d-9ecb-4e76-af06-85ef2e32ff98" 
         extra:
           - NAVident
     sidecar:
@@ -39,9 +37,9 @@ spec:
         - /api/internal/*
   env:
     - name: ADMIN_GROUP_ID
-      value: "TODO-ADMIN-GROUP-ID" # Replace with your admin AD group ID
+      value: "55a93a3d-9ecb-4e76-af06-85ef2e32ff98" 
   filesFrom:
-    - persistentVolumeClaim: biljardturnering-data
+    - persistentVolumeClaim: biljard-data
       mountPath: /app/data
   ingresses:
-    - # TODO: Add your ingress URL, e.g. https://biljardturnering.intern.dev.nav.no
+    - https://biljard.intern.dev.nav.no
