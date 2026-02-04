@@ -96,6 +96,10 @@ export interface Match {
   created_at: string;
 }
 
+const TOURNAMENT_FIELDS = ['name', 'description', 'type', 'rounds', 'round_duration_weeks', 'registration_deadline', 'start_date', 'end_date', 'status'] as const;
+const PARTICIPANT_FIELDS = ['name', 'email', 'nav_ident', 'slack_handle'] as const;
+const MATCH_FIELDS = ['player1_score', 'player2_score', 'winner_id', 'played_at', 'reported_by'] as const;
+
 export function getAllTournaments(): Tournament[] {
   return db.prepare('SELECT * FROM tournaments ORDER BY created_at DESC').all() as Tournament[];
 }
@@ -124,7 +128,11 @@ export function createTournament(data: Omit<Tournament, 'id' | 'created_at'>): n
 }
 
 export function updateTournament(id: number, data: Partial<Tournament>): void {
-  const fields = Object.keys(data).filter(k => k !== 'id' && k !== 'created_at');
+  const fields = Object.keys(data).filter((k): k is typeof TOURNAMENT_FIELDS[number] => 
+    TOURNAMENT_FIELDS.includes(k as typeof TOURNAMENT_FIELDS[number])
+  );
+  if (fields.length === 0) return;
+  
   const setClause = fields.map(f => `${f} = ?`).join(', ');
   const values = fields.map(f => (data as Record<string, unknown>)[f]);
   
@@ -159,7 +167,9 @@ export function removeParticipant(id: number): void {
 }
 
 export function updateParticipant(id: number, data: Partial<Participant>): void {
-  const fields = Object.keys(data).filter(k => k !== 'id' && k !== 'registered_at' && k !== 'tournament_id');
+  const fields = Object.keys(data).filter((k): k is typeof PARTICIPANT_FIELDS[number] => 
+    PARTICIPANT_FIELDS.includes(k as typeof PARTICIPANT_FIELDS[number])
+  );
   if (fields.length === 0) return;
   
   const setClause = fields.map(f => `${f} = ?`).join(', ');
@@ -200,7 +210,9 @@ export function createMatch(data: Omit<Match, 'id' | 'created_at'>): number {
 }
 
 export function updateMatch(id: number, data: Partial<Match>): void {
-  const fields = Object.keys(data).filter(k => k !== 'id' && k !== 'created_at');
+  const fields = Object.keys(data).filter((k): k is typeof MATCH_FIELDS[number] => 
+    MATCH_FIELDS.includes(k as typeof MATCH_FIELDS[number])
+  );
   if (fields.length === 0) return;
   
   const setClause = fields.map(f => `${f} = ?`).join(', ');

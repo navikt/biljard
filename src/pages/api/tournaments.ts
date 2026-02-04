@@ -6,13 +6,16 @@ import {
   updateTournament, 
   deleteTournament,
   getParticipantsByTournament,
-  removeParticipant,
-  updateParticipant,
   getMatchesByTournament,
-  updateMatch,
   generateRoundRobinMatches,
   getStandings
 } from '../../lib/db';
+
+function isAdmin(locals: App.Locals): boolean {
+  const user = locals.user;
+  const adminGroupId = import.meta.env.ADMIN_GROUP_ID ?? '';
+  return !!user && !!adminGroupId && user.groups.includes(adminGroupId);
+}
 
 export const GET: APIRoute = async ({ url }) => {
   const id = url.searchParams.get('id');
@@ -41,7 +44,14 @@ export const GET: APIRoute = async ({ url }) => {
   });
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
+  if (!isAdmin(locals)) {
+    return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
     const body = await request.json();
     const { name, description, type, rounds, roundDurationWeeks, registrationDeadline, startDate, endDate } = body;
@@ -78,7 +88,14 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ request }) => {
+export const PUT: APIRoute = async ({ request, locals }) => {
+  if (!isAdmin(locals)) {
+    return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
     const body = await request.json();
     const { id, ...data } = body;
@@ -127,7 +144,14 @@ export const PUT: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ url }) => {
+export const DELETE: APIRoute = async ({ url, locals }) => {
+  if (!isAdmin(locals)) {
+    return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const id = url.searchParams.get('id');
   
   if (!id) {

@@ -1,7 +1,20 @@
 import type { APIRoute } from 'astro';
 import { removeParticipant, updateParticipant, getParticipantById } from '../../lib/db';
 
-export const PUT: APIRoute = async ({ request }) => {
+function isAdmin(locals: App.Locals): boolean {
+  const user = locals.user;
+  const adminGroupId = import.meta.env.ADMIN_GROUP_ID ?? '';
+  return !!user && !!adminGroupId && user.groups.includes(adminGroupId);
+}
+
+export const PUT: APIRoute = async ({ request, locals }) => {
+  if (!isAdmin(locals)) {
+    return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
     const body = await request.json();
     const { id, name, email, slackHandle } = body;
@@ -40,7 +53,14 @@ export const PUT: APIRoute = async ({ request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ url }) => {
+export const DELETE: APIRoute = async ({ url, locals }) => {
+  if (!isAdmin(locals)) {
+    return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const id = url.searchParams.get('id');
   
   if (!id) {
