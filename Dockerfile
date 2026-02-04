@@ -1,31 +1,20 @@
-FROM node:22-alpine AS builder
-
-RUN apk add --no-cache python3 make g++
+FROM node:22-slim
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
 COPY . .
 RUN npm run build
-
-FROM node:22-alpine AS runner
-
-WORKDIR /app
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=8080
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 astro
-
-COPY --from=builder --chown=astro:nodejs /app/dist ./dist
-COPY --from=builder --chown=astro:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=astro:nodejs /app/package.json ./package.json
-
-RUN mkdir -p /app/data && chown astro:nodejs /app/data
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 astro && \
+    mkdir -p /app/data && chown astro:nodejs /app/data
 
 USER astro
 
