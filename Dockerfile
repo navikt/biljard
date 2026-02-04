@@ -1,9 +1,11 @@
 FROM node:22-slim
 
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci && npm cache clean --force
+RUN npm ci --build-from-source && npm cache clean --force
 
 COPY . .
 RUN npm run build
