@@ -417,7 +417,6 @@ const TYPE_LABELS: Record<string, string> = {
     }, 5000);
   }
 
-  // Status updates
   async function updateStatus(newStatus: string) {
     try {
       const response = await fetch('/api/tournaments', {
@@ -439,7 +438,6 @@ const TYPE_LABELS: Record<string, string> = {
   document.getElementById('btn-complete-tournament')?.addEventListener('click', () => updateStatus('completed'));
   document.getElementById('btn-reopen-tournament')?.addEventListener('click', () => updateStatus('active'));
 
-  // Delete tournament
   document.getElementById('btn-delete-tournament')?.addEventListener('click', async () => {
     if (!confirm('Er du sikker på at du vil slette denne turneringen? Dette kan ikke angres.')) return;
     try {
@@ -454,7 +452,6 @@ const TYPE_LABELS: Record<string, string> = {
     }
   });
 
-  // Remove participant
   document.querySelectorAll('.btn-remove-participant').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const id = (e.currentTarget as HTMLElement).dataset.id;
@@ -473,7 +470,6 @@ const TYPE_LABELS: Record<string, string> = {
     });
   });
 
-  // Edit match result
   const dialog = document.getElementById('edit-match-dialog') as any;
   const matchNames = document.getElementById('match-dialog-names');
   const labelPlayer1 = document.getElementById('label-player1');
@@ -496,12 +492,6 @@ const TYPE_LABELS: Record<string, string> = {
       inputScore1.value = match.player1_score?.toString() ?? '';
       inputScore2.value = match.player2_score?.toString() ?? '';
       
-      // Starwind Dialog is usually triggered by data attributes or a class
-      // If it doesn't have a JS API, we might need to manually show it
-      // Standard Starwind behavior uses a script that listens for clicks
-      // But we can trigger it manually if we know how.
-      // Most of these components use a hidden/checkbox hack or a script.
-      // Let's try to find the trigger or manually toggle attributes.
       dialog?.setAttribute('data-state', 'open');
     });
   });

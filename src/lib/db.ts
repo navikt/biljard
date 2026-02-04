@@ -1,10 +1,11 @@
 import Database from 'better-sqlite3';
 import { existsSync, mkdirSync } from 'fs';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 
-const dbPath = './data/tournament.db';
+const dbPath = process.env.NODE_ENV === 'production'
+  ? '/app/data/tournament.db'
+  : resolve('./data/tournament.db');
 
-// Ensure data directory exists
 const dir = dirname(dbPath);
 if (!existsSync(dir)) {
   mkdirSync(dir, { recursive: true });
@@ -12,7 +13,6 @@ if (!existsSync(dir)) {
 
 const db = new Database(dbPath);
 
-// Initialize database schema
 db.exec(`
   CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,6 +33,7 @@ db.exec(`
     tournament_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
+    nav_ident TEXT,
     slack_handle TEXT,
     registered_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
@@ -55,14 +56,6 @@ db.exec(`
     FOREIGN KEY (player1_id) REFERENCES participants(id),
     FOREIGN KEY (player2_id) REFERENCES participants(id)
   );
-
-  CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    password_hash TEXT NOT NULL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
-  );
 `);
 
 export interface Tournament {
@@ -84,6 +77,7 @@ export interface Participant {
   tournament_id: number;
   name: string;
   email: string;
+  nav_ident: string | null;
   slack_handle: string | null;
   registered_at: string;
 }
@@ -102,7 +96,6 @@ export interface Match {
   created_at: string;
 }
 
-// Tournament functions
 export function getAllTournaments(): Tournament[] {
   return db.prepare('SELECT * FROM tournaments ORDER BY created_at DESC').all() as Tournament[];
 }
@@ -144,7 +137,6 @@ export function deleteTournament(id: number): void {
   db.prepare('DELETE FROM tournaments WHERE id = ?').run(id);
 }
 
-// Participant functions
 export function getParticipantsByTournament(tournamentId: number): Participant[] {
   return db.prepare('SELECT * FROM participants WHERE tournament_id = ? ORDER BY registered_at').all(tournamentId) as Participant[];
 }
@@ -155,10 +147,10 @@ export function getParticipantById(id: number): Participant | undefined {
 
 export function registerParticipant(data: Omit<Participant, 'id' | 'registered_at'>): number {
   const stmt = db.prepare(`
-    INSERT INTO participants (tournament_id, name, email, slack_handle)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO participants (tournament_id, name, email, nav_ident, slack_handle)
+    VALUES (?, ?, ?, ?, ?)
   `);
-  const result = stmt.run(data.tournament_id, data.name, data.email, data.slack_handle);
+  const result = stmt.run(data.tournament_id, data.name, data.email, data.nav_ident, data.slack_handle);
   return result.lastInsertRowid as number;
 }
 
@@ -176,7 +168,6 @@ export function updateParticipant(id: number, data: Partial<Participant>): void 
   db.prepare(`UPDATE participants SET ${setClause} WHERE id = ?`).run(...values, id);
 }
 
-// Match functions
 export function getMatchesByTournament(tournamentId: number): Match[] {
   return db.prepare('SELECT * FROM matches WHERE tournament_id = ? ORDER BY round, id').all(tournamentId) as Match[];
 }
@@ -226,19 +217,15 @@ export function deleteMatchesByTournament(tournamentId: number): void {
   db.prepare('DELETE FROM matches WHERE tournament_id = ?').run(tournamentId);
 }
 
-// Generate round-robin matches for a tournament
 export function generateRoundRobinMatches(tournamentId: number): void {
   const participants = getParticipantsByTournament(tournamentId);
   const tournament = getTournamentById(tournamentId);
   if (!tournament || participants.length < 2) return;
 
-  // Delete existing matches
   deleteMatchesByTournament(tournamentId);
 
-  const n = participants.length;
   const rounds = tournament.rounds;
   
-  // Simple round-robin scheduling
   for (let round = 1; round <= rounds; round++) {
     const usedPlayers = new Set<number>();
     const shuffled = [...participants].sort(() => Math.random() - 0.5);
@@ -263,7 +250,6 @@ export function generateRoundRobinMatches(tournamentId: number): void {
   }
 }
 
-// Get standings for a tournament
 export function getStandings(tournamentId: number): { participant: Participant; wins: number; losses: number; played: number }[] {
   const participants = getParticipantsByTournament(tournamentId);
   const matches = getMatchesByTournament(tournamentId);

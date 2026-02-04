@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { User } from '@/middleware';
 
 const { id } = Astro.params;
 const tournamentId = parseInt(id || '0');
@@ -15,12 +16,15 @@ if (!tournament) {
   return Astro.redirect('/turneringer');
 }
 
+const user = (Astro.locals as { user?: User }).user;
 const participants = getParticipantsByTournament(tournamentId);
 const matches = getMatchesByTournament(tournamentId);
 const standings = getStandings(tournamentId);
 
 const isRegistrationOpen = tournament.status === 'registration' && 
   (!tournament.registration_deadline || new Date(tournament.registration_deadline) > new Date());
+
+const isAlreadyRegistered = user && participants.some(p => p.email.toLowerCase() === user.email.toLowerCase());
 
 const matchesByRound: Record<number, typeof matches> = {};
 matches.forEach(match => {
@@ -92,11 +96,20 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
     </CardContent>
   </Card>
 
-  {isRegistrationOpen && (
+  {isRegistrationOpen && user && !isAlreadyRegistered && (
     <section className="mt-8">
       <h2 class="text-2xl font-bold mb-4">Meld deg på</h2>
-      <RegistrationForm tournamentId={tournamentId} />
+      <RegistrationForm tournamentId={tournamentId} user={user} />
     </section>
+  )}
+
+  {isAlreadyRegistered && (
+    <Alert className="mt-8">
+      <AlertTitle>Du er påmeldt! ✅</AlertTitle>
+      <AlertDescription>
+        Du er allerede registrert i denne turneringen. Vi sees på biljardbordet!
+      </AlertDescription>
+    </Alert>
   )}
 
   {!isRegistrationOpen && tournament.status === 'registration' && (

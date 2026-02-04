@@ -5,12 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
+import type { User } from "@/middleware";
 
 interface Props {
   tournamentId: number;
+  user: User;
 }
 
-const { tournamentId } = Astro.props;
+const { tournamentId, user } = Astro.props;
 ---
 
 <Card className="w-full">
@@ -25,26 +27,10 @@ const { tournamentId } = Astro.props;
     <form id="registration-form" class="space-y-6" aria-label="Påmeldingsskjema">
       <input type="hidden" name="tournamentId" value={tournamentId} />
       
-      <div class="space-y-2">
-        <Label for="name">Navn</Label>
-        <Input
-          id="name"
-          name="name"
-          required
-          autoComplete="name"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <Label for="email">E-post</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-        />
-        <p class="text-sm text-muted-foreground">Vi sender kampinformasjon til denne adressen</p>
+      <div class="bg-muted/50 rounded-lg p-4 space-y-2">
+        <p class="text-sm text-muted-foreground">Du melder deg på som:</p>
+        <p class="font-bold">{user.name}</p>
+        <p class="text-sm text-muted-foreground">{user.email}</p>
       </div>
 
       <div class="space-y-2">
@@ -53,8 +39,9 @@ const { tournamentId } = Astro.props;
           id="slackHandle"
           name="slackHandle"
           autoComplete="off"
+          placeholder="f.eks. jonas.nicolaysen"
         />
-        <p class="text-sm text-muted-foreground">Valgfritt, men anbefalt. F.eks. jonas.nicolaysen</p>
+        <p class="text-sm text-muted-foreground">Valgfritt, men anbefalt for enklere kommunikasjon</p>
       </div>
 
       <div class="border rounded-lg p-4 bg-muted/50">
@@ -104,8 +91,6 @@ const { tournamentId } = Astro.props;
     const formData = new FormData(form);
     const data = {
       tournamentId: parseInt(formData.get('tournamentId') as string),
-      name: (formData.get('name') as string).trim(),
-      email: (formData.get('email') as string).trim().toLowerCase(),
       slackHandle: (formData.get('slackHandle') as string).trim() || undefined
     };
 
@@ -145,7 +130,6 @@ const { tournamentId } = Astro.props;
     alertTitle.textContent = title;
     alertDescription.textContent = description;
     
-    // Starwind Alert variants might need adjustment if they use specific classes
     if (type === 'error') {
       alertComponent.setAttribute('data-variant', 'destructive');
       alertComponent.classList.add('border-destructive', 'text-destructive');

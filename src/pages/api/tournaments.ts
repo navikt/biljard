@@ -14,7 +14,6 @@ import {
   getStandings
 } from '../../lib/db';
 
-// Get all tournaments or single tournament
 export const GET: APIRoute = async ({ url }) => {
   const id = url.searchParams.get('id');
   
@@ -42,7 +41,6 @@ export const GET: APIRoute = async ({ url }) => {
   });
 };
 
-// Create tournament
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
@@ -80,7 +78,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-// Update tournament
 export const PUT: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
@@ -101,7 +98,6 @@ export const PUT: APIRoute = async ({ request }) => {
       });
     }
 
-    // Map camelCase to snake_case
     const updateData: Record<string, unknown> = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
@@ -115,7 +111,6 @@ export const PUT: APIRoute = async ({ request }) => {
 
     updateTournament(id, updateData);
 
-    // If status changed to active, generate matches
     if (data.status === 'active' && tournament.status !== 'active') {
       generateRoundRobinMatches(id);
     }
@@ -132,7 +127,6 @@ export const PUT: APIRoute = async ({ request }) => {
   }
 };
 
-// Delete tournament
 export const DELETE: APIRoute = async ({ url }) => {
   const id = url.searchParams.get('id');
   

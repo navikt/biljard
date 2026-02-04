@@ -1,13 +1,22 @@
 import type { APIRoute } from 'astro';
 import { registerParticipant, getTournamentById, getParticipantsByTournament } from '../../lib/db';
+import type { User } from '../../middleware';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const body = await request.json();
-    const { tournamentId, name, email, slackHandle } = body;
+    const user = (locals as { user?: User }).user;
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Ikke autentisert' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    if (!tournamentId || !name || !email) {
-      return new Response(JSON.stringify({ error: 'Mangler påkrevde felt' }), {
+    const body = await request.json();
+    const { tournamentId, slackHandle } = body;
+
+    if (!tournamentId) {
+      return new Response(JSON.stringify({ error: 'Mangler turneringsid' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -35,9 +44,8 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Check if already registered
     const existing = getParticipantsByTournament(tournamentId);
-    if (existing.some(p => p.email.toLowerCase() === email.toLowerCase())) {
+    if (existing.some(p => p.email.toLowerCase() === user.email.toLowerCase())) {
       return new Response(JSON.stringify({ error: 'Du er allerede påmeldt denne turneringen' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -46,8 +54,9 @@ export const POST: APIRoute = async ({ request }) => {
 
     const participantId = registerParticipant({
       tournament_id: tournamentId,
-      name,
-      email,
+      name: user.name,
+      email: user.email,
+      nav_ident: user.navIdent || null,
       slack_handle: slackHandle || null
     });
 

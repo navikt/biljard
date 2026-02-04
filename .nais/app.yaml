@@ -1,0 +1,47 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: biljardturnering
+  namespace: # TODO: Add your team namespace
+  labels:
+    team: # TODO: Add your team name
+spec:
+  image: "{{ image }}"
+  port: 8080
+  liveness:
+    path: /api/internal/isAlive
+    initialDelay: 10
+  readiness:
+    path: /api/internal/isReady
+    initialDelay: 10
+  replicas:
+    min: 1
+    max: 2
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 256Mi
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      claims:
+        groups:
+          - id: "TODO-ADMIN-GROUP-ID" # Replace with your admin AD group ID
+        extra:
+          - NAVident
+    sidecar:
+      enabled: true
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /api/internal/*
+  env:
+    - name: ADMIN_GROUP_ID
+      value: "TODO-ADMIN-GROUP-ID" # Replace with your admin AD group ID
+  filesFrom:
+    - persistentVolumeClaim: biljardturnering-data
+      mountPath: /app/data
+  ingresses:
+    - # TODO: Add your ingress URL, e.g. https://biljardturnering.intern.dev.nav.no

@@ -20,7 +20,7 @@ const tournamentTypeDescriptions: Record<string, string> = {
 };
 ---
 
-<Card className="max-w-[600px] w-full">
+<Card className="max-w-150 w-full">
   <CardHeader>
     <CardTitle>Opprett turnering</CardTitle>
     <CardDescription>Fyll ut detaljene for å starte en ny turnering</CardDescription>
@@ -158,13 +158,11 @@ const tournamentTypeDescriptions: Record<string, string> = {
     'swiss': 'Spillere med lik poengsum møtes. God balanse mellom lengde og rettferdighet.',
   };
 
-  // Update description when type changes
   typeSelect?.addEventListener('change', (e) => {
     const val = (e.target as HTMLSelectElement).value;
     if (typeDescription) typeDescription.textContent = descriptions[val] || '';
   });
 
-  // Update estimated duration
   const updateDuration = () => {
     const rounds = parseInt(roundsInput.value);
     const weeks = parseInt(weeksInput.value);
@@ -183,7 +181,6 @@ const tournamentTypeDescriptions: Record<string, string> = {
     
     const formData = new FormData(form);
     
-    // Manual validation
     const name = (formData.get('name') as string).trim();
     if (!name) {
       showMessage('Feil', 'Turneringsnavn er påkrevd', 'error');

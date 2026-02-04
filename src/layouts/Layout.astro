@@ -1,5 +1,6 @@
 ---
 import "@/styles/starwind.css";
+import type { User } from "@/middleware";
 
 interface Props {
   title: string;
@@ -8,6 +9,7 @@ interface Props {
 
 const { title, description = "Administrer biljardturneringer på arbeidsplassen" } = Astro.props;
 const currentPath = Astro.url.pathname;
+const user = (Astro.locals as { user?: User | null }).user;
 ---
 
 <!doctype html>
@@ -38,9 +40,16 @@ const currentPath = Astro.url.pathname;
           </nav>
         </div>
         
-        <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-md hover:bg-muted transition-colors" aria-label="Meny">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
+        <div class="flex items-center gap-4">
+          {user && (
+            <span class="hidden md:block text-sm text-muted-foreground">
+              {user.name}
+            </span>
+          )}
+          <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-md hover:bg-muted transition-colors" aria-label="Meny">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+        </div>
       </div>
       
       <!-- Mobile Menu -->
