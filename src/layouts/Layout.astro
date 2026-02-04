@@ -1,6 +1,5 @@
 ---
 import "@/styles/starwind.css";
-import type { User } from "@/middleware";
 
 interface Props {
   title: string;
@@ -9,7 +8,8 @@ interface Props {
 
 const { title, description = "Administrer biljardturneringer på arbeidsplassen" } = Astro.props;
 const currentPath = Astro.url.pathname;
-const user = (Astro.locals as { user?: User | null }).user;
+const user = Astro.locals.user;
+const isAdmin = user?.isAdmin ?? false;
 ---
 
 <!doctype html>
@@ -27,7 +27,7 @@ const user = (Astro.locals as { user?: User | null }).user;
       Hopp til hovedinnhold
     </a>
     
-    <header class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div class="container mx-auto max-w-6xl px-4 md:px-6 flex h-16 items-center justify-between">
         <div class="flex items-center gap-6">
           <a href="/" class="flex items-center space-x-2 font-bold text-xl tracking-tight hover:text-primary transition-colors">
@@ -36,7 +36,9 @@ const user = (Astro.locals as { user?: User | null }).user;
           <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="/" class={currentPath === "/" ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Hjem</a>
             <a href="/turneringer" class={currentPath.startsWith("/turnering") && !currentPath.startsWith("/admin") ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Turneringer</a>
-            <a href="/admin" class={currentPath.startsWith("/admin") ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Admin</a>
+            {isAdmin && (
+              <a href="/admin" class={currentPath.startsWith("/admin") ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Admin</a>
+            )}
           </nav>
         </div>
         
@@ -57,7 +59,9 @@ const user = (Astro.locals as { user?: User | null }).user;
         <nav class="flex flex-col gap-4 text-sm font-medium">
           <a href="/" class={currentPath === "/" ? "text-primary" : "text-muted-foreground"}>Hjem</a>
           <a href="/turneringer" class={currentPath.startsWith("/turnering") && !currentPath.startsWith("/admin") ? "text-primary" : "text-muted-foreground"}>Turneringer</a>
-          <a href="/admin" class={currentPath.startsWith("/admin") ? "text-primary" : "text-muted-foreground"}>Admin</a>
+          {isAdmin && (
+            <a href="/admin" class={currentPath.startsWith("/admin") ? "text-primary" : "text-muted-foreground"}>Admin</a>
+          )}
         </nav>
       </div>
     </header>
