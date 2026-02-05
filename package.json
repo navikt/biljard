@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test-data": "tsx scripts/generateTestData.ts",
     "astro": "astro"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
+    "tsx": "^4.21.0",
     "vitest": "^4.0.18"
   }
 }
