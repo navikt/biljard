@@ -47,6 +47,7 @@ src/
 - **UI Language**: Norwegian (Bokmål)
 - **Code Language**: English
 - **TypeScript**: Strict mode with `noUncheckedIndexedAccess`
+- **Dependencies** Don't remove dependencies that are referenced in [src/styles/starwind.css](../src/styles/starwind.css)
 
 ## Commands
 ```bash
