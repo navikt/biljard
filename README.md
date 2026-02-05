@@ -52,30 +52,6 @@ src/
 └── app.yaml             # NAIS manifest
 ```
 
-## Deployment til NAIS
-
-### Forutsetninger
-
-1. Opprett en AD-gruppe for administratorer i Azure AD
-2. Oppdater `.nais/app.yaml` med:
-   - `namespace` og `team`
-   - `ADMIN_GROUP_ID` med din AD-gruppe ID
-   - `ingresses` med ønsket URL
-
-### Deploy
-
-Push til `main`-branchen trigger automatisk deploy via GitHub Actions.
-
-Manuelt:
-
-```bash
-# Build
-npm run build
-
-# Deploy (krever nais-cli)
-nais deploy --cluster=dev-gcp --resource=.nais/app.yaml
-```
-
 ### Autentisering
 
 Appen bruker [Wonderwall](https://doc.nais.io/auth/entra-id/how-to/login/) sidecar for autentisering:
@@ -83,12 +59,31 @@ Appen bruker [Wonderwall](https://doc.nais.io/auth/entra-id/how-to/login/) sidec
 - **Alle ansatte** kan se turneringer og melde seg på
 - **Admin-gruppe** kan opprette/administrere turneringer
 
-## Miljøvariabler
-
-| Variabel | Beskrivelse |
-|----------|-------------|
-| `ADMIN_GROUP_ID` | Azure AD gruppe-ID for administratorer |
-
 ## Lokalt utvikling
 
-I utviklingsmodus (`npm run dev`) er autentisering deaktivert og du får en test-bruker automatisk.
+I utviklingsmodus (`npm run dev`) får du automatisk en test-bruker med admin-tilgang.
+
+### Test som vanlig bruker
+
+Legg til `?admin=false` i URL-en for å teste som ikke-admin:
+
+```
+http://localhost:8080/turneringer?admin=false
+```
+
+### Reset database
+
+```bash
+# Via API (kun i dev)
+curl -X POST http://localhost:8080/api/dev/reset
+
+# Eller slett filen
+rm data/tournament.db
+```
+
+### Kjør tester
+
+```bash
+npm test           # Kjør en gang
+npm run test:watch # Kjør kontinuerlig
+```

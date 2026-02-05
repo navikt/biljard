@@ -20,7 +20,7 @@ const tournamentTypeDescriptions: Record<string, string> = {
 };
 ---
 
-<Card className="max-w-150 w-full">
+<Card class="max-w-150 w-full">
   <CardHeader>
     <CardTitle>Opprett turnering</CardTitle>
     <CardDescription>Fyll ut detaljene for å starte en ny turnering</CardDescription>
@@ -35,7 +35,7 @@ const tournamentTypeDescriptions: Record<string, string> = {
 
     <form 
       id="create-tournament-form"
-      className="space-y-6"
+      class="space-y-6"
       aria-label="Opprett turnering"
     >
       <div class="space-y-2">
@@ -86,7 +86,6 @@ const tournamentTypeDescriptions: Record<string, string> = {
               id="rounds"
               name="rounds"
               type="number"
-              defaultValue="10"
               min="1"
               max="20"
               required
@@ -98,7 +97,6 @@ const tournamentTypeDescriptions: Record<string, string> = {
               id="roundDurationWeeks"
               name="roundDurationWeeks"
               type="number"
-              defaultValue="2"
               min="1"
               max="4"
               required
