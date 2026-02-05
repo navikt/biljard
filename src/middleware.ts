@@ -1,12 +1,5 @@
 import { defineMiddleware, sequence } from 'astro:middleware';
-
-export interface User {
-  name: string;
-  email: string;
-  navIdent: string;
-  groups: string[];
-  isAdmin: boolean;
-}
+import type { User } from './types/User';
 
 function parseJwtPayload(token: string): Record<string, unknown> | null {
   try {
