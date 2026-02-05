@@ -34,8 +34,8 @@ const formatDate = (dateString?: string, includeTime = false) => {
 };
 ---
 
-<Tabs defaultValue="registration" className="w-full">
-  <TabsList className="grid w-full grid-cols-3 mb-6">
+<Tabs defaultValue="registration" class="w-full">
+  <TabsList class="grid w-full grid-cols-3 mb-6">
     <TabsTrigger value="registration">Påmelding ({registrationOpen.length})</TabsTrigger>
     <TabsTrigger value="active">Pågående ({active.length})</TabsTrigger>
     <TabsTrigger value="completed">Avsluttet ({completed.length})</TabsTrigger>
@@ -50,10 +50,10 @@ const formatDate = (dateString?: string, includeTime = false) => {
       <div class="grid gap-4">
         {registrationOpen.map((tournament) => (
           <a href={`/turnering/${tournament.id}`} class="block no-underline group">
-            <Card className="hover:border-primary/50 transition-colors">
+            <Card class="hover:border-primary/50 transition-colors">
               <CardHeader>
                 <div class="flex justify-between items-start gap-4">
-                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <CardTitle class="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
                   <Badge variant="default">Påmelding åpen</Badge>
                 </div>
                 <CardDescription>
@@ -83,10 +83,10 @@ const formatDate = (dateString?: string, includeTime = false) => {
       <div class="grid gap-4">
         {active.map((tournament) => (
           <a href={`/turnering/${tournament.id}`} class="block no-underline group">
-            <Card className="hover:border-primary/50 transition-colors">
+            <Card class="hover:border-primary/50 transition-colors">
               <CardHeader>
                 <div class="flex justify-between items-start gap-4">
-                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <CardTitle class="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
                   <Badge variant="secondary">Pågår</Badge>
                 </div>
                 <CardDescription>
@@ -116,10 +116,10 @@ const formatDate = (dateString?: string, includeTime = false) => {
       <div class="grid gap-4">
         {completed.map((tournament) => (
           <a href={`/turnering/${tournament.id}`} class="block no-underline group">
-            <Card className="hover:border-primary/50 transition-colors">
+            <Card class="hover:border-primary/50 transition-colors">
               <CardHeader>
                 <div class="flex justify-between items-start gap-4">
-                  <CardTitle className="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
+                  <CardTitle class="group-hover:text-primary transition-colors">{tournament.name}</CardTitle>
                   <Badge variant="outline">Avsluttet</Badge>
                 </div>
                 <CardDescription>

@@ -70,14 +70,6 @@ const isAdmin = user?.isAdmin ?? false;
       <slot />
     </main>
 
-    <footer class="border-t py-6 md:py-0">
-      <div class="container mx-auto max-w-6xl px-4 md:px-6 flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-        <p class="text-center text-sm leading-loose text-muted-foreground md:text-left">
-          © {new Date().getFullYear()} Biljardturnering - NAV. Bygget med Astro og Starwind UI.
-        </p>
-      </div>
-    </footer>
-
     <script>
       const toggle = document.getElementById('mobile-menu-toggle');
       const menu = document.getElementById('mobile-menu');
