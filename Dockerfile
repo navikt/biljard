@@ -1,11 +1,11 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:24-slim
+FROM node:24-slim
 
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --build-from-source && npm cache clean --force
+RUN npm ci
 
 COPY . .
 RUN npm run build
