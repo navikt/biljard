@@ -11,12 +11,6 @@ import {
   getStandings
 } from '../../lib/db';
 
-function isAdmin(locals: App.Locals): boolean {
-  const user = locals.user;
-  const adminGroupId = import.meta.env.ADMIN_GROUP_ID ?? '';
-  return !!user && !!adminGroupId && user.groups.includes(adminGroupId);
-}
-
 export const GET: APIRoute = async ({ url }) => {
   const id = url.searchParams.get('id');
   
@@ -45,7 +39,7 @@ export const GET: APIRoute = async ({ url }) => {
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  if (!isAdmin(locals)) {
+  if (!locals.user.isAdmin) {
     return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' }
@@ -89,7 +83,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ request, locals }) => {
-  if (!isAdmin(locals)) {
+  if (!locals.user.isAdmin) {
     return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' }
@@ -145,7 +139,7 @@ export const PUT: APIRoute = async ({ request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ url, locals }) => {
-  if (!isAdmin(locals)) {
+  if (!locals.user.isAdmin) {
     return new Response(JSON.stringify({ error: 'Ingen tilgang' }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' }

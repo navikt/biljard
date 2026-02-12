@@ -9,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -48,7 +46,7 @@ for (const match of matches) {
   if (!matchesByRound[match.round]) {
     matchesByRound[match.round] = [];
   }
-  matchesByRound[match.round].push(match);
+  matchesByRound[match.round]?.push(match);
 }
 
 const formatDate = (dateString: string | null, includeTime = false) => {
@@ -78,8 +76,8 @@ const TYPE_LABELS: Record<string, string> = {
     </Alert>
   </div>
 
-  <Tabs defaultValue="info" className="w-full">
-    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+  <Tabs defaultValue="info" class="w-full">
+    <TabsList class="grid w-full grid-cols-2 md:grid-cols-4">
       <TabsTrigger value="info">Informasjon</TabsTrigger>
       <TabsTrigger value="participants">Deltakere ({participants.length})</TabsTrigger>
       <TabsTrigger value="matches">Kamper ({completedMatches}/{matches.length})</TabsTrigger>
@@ -91,41 +89,41 @@ const TYPE_LABELS: Record<string, string> = {
         <CardHeader>
           <CardTitle>Turneringsinformasjon</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <dl className="grid gap-4 sm:grid-cols-2 text-sm">
+        <CardContent class="space-y-6">
+          <dl class="grid gap-4 sm:grid-cols-2 text-sm">
             <div>
-              <dt className="font-medium text-muted-foreground">Navn</dt>
+              <dt class="font-medium text-muted-foreground">Navn</dt>
               <dd>{tournament.name}</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Beskrivelse</dt>
+              <dt class="font-medium text-muted-foreground">Beskrivelse</dt>
               <dd>{tournament.description || <span class="text-muted-foreground italic">Ingen beskrivelse</span>}</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Type</dt>
+              <dt class="font-medium text-muted-foreground">Type</dt>
               <dd>{TYPE_LABELS[tournament.type] ?? tournament.type}</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Runder</dt>
+              <dt class="font-medium text-muted-foreground">Runder</dt>
               <dd>{tournament.rounds}</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Varighet per runde</dt>
+              <dt class="font-medium text-muted-foreground">Varighet per runde</dt>
               <dd>{tournament.round_duration_weeks} uker</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Påmeldingsfrist</dt>
+              <dt class="font-medium text-muted-foreground">Påmeldingsfrist</dt>
               <dd>{formatDate(tournament.registration_deadline, true)}</dd>
             </div>
             <div>
-              <dt className="font-medium text-muted-foreground">Oppstart</dt>
+              <dt class="font-medium text-muted-foreground">Oppstart</dt>
               <dd>{formatDate(tournament.start_date)}</dd>
             </div>
             {tournament.status === 'active' && matches.length > 0 && (
               <div class="sm:col-span-2">
                 <dt class="font-medium text-muted-foreground mb-2">Fremgang</dt>
                 <dd class="flex items-center gap-2">
-                  <Progress value={completionPercentage} className="w-[120px]" />
+                  <Progress value={completionPercentage} class="w-[120px]" />
                   <span class="text-sm">
                     {completionPercentage}% ({completedMatches} av {matches.length} kamper)
                   </span>
@@ -185,13 +183,13 @@ const TYPE_LABELS: Record<string, string> = {
                     <TableHead>E-post</TableHead>
                     <TableHead>Slack</TableHead>
                     <TableHead>Registrert</TableHead>
-                    <TableHead className="w-[100px]">Handlinger</TableHead>
+                    <TableHead class="w-[100px]">Handlinger</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {participants.map(p => (
                     <TableRow>
-                      <TableCell className="font-medium">{p.name}</TableCell>
+                      <TableCell class="font-medium">{p.name}</TableCell>
                       <TableCell>{p.email}</TableCell>
                       <TableCell>{p.slack_handle ?? '-'}</TableCell>
                       <TableCell>{formatDate(p.registered_at)}</TableCell>
@@ -199,7 +197,7 @@ const TYPE_LABELS: Record<string, string> = {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="text-destructive hover:text-destructive btn-remove-participant"
+                          class="text-destructive hover:text-destructive btn-remove-participant"
                           data-id={p.id}
                           data-name={p.name}
                         >
@@ -242,7 +240,7 @@ const TYPE_LABELS: Record<string, string> = {
                           <TableHead>Spiller 1</TableHead>
                           <TableHead>Spiller 2</TableHead>
                           <TableHead>Resultat</TableHead>
-                          <TableHead className="w-[100px]">Handlinger</TableHead>
+                          <TableHead class="w-[100px]">Handlinger</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -279,7 +277,7 @@ const TYPE_LABELS: Record<string, string> = {
                                 <Button 
                                   variant="outline" 
                                   size="sm"
-                                  className="btn-edit-match"
+                                  class="btn-edit-match"
                                   data-match={JSON.stringify(match)}
                                   data-player1-name={player1?.name}
                                   data-player2-name={player2?.name}
@@ -316,7 +314,7 @@ const TYPE_LABELS: Record<string, string> = {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead class="w-[50px]">#</TableHead>
                     <TableHead>Spiller</TableHead>
                     <TableHead>Spilt</TableHead>
                     <TableHead>Seire</TableHead>
@@ -332,11 +330,11 @@ const TYPE_LABELS: Record<string, string> = {
                         {index === 2 && '🥉 '}
                         {index + 1}
                       </TableCell>
-                      <TableCell className={index < 3 ? 'font-bold' : ''}>
+                      <TableCell class={index < 3 ? 'font-bold' : ''}>
                         {standing.participant.name}
                       </TableCell>
                       <TableCell>{standing.played}</TableCell>
-                      <TableCell className="text-green-600 font-medium">
+                      <TableCell class="text-green-600 font-medium">
                         {standing.wins}
                       </TableCell>
                       <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>
@@ -358,36 +356,23 @@ const TYPE_LABELS: Record<string, string> = {
   <Dialog id="edit-match-dialog">
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Registrer resultat</DialogTitle>
+        <DialogTitle>Registrer vinner</DialogTitle>
         <DialogDescription id="match-dialog-names">
         </DialogDescription>
       </DialogHeader>
       
-      <div class="grid grid-cols-2 gap-4 py-4">
-        <div class="space-y-2">
-          <Label htmlFor="score1" id="label-player1">Spiller 1</Label>
-          <Input
-            id="score1"
-            type="number"
-            min="0"
-          />
-        </div>
-        <div class="space-y-2">
-          <Label htmlFor="score2" id="label-player2">Spiller 2</Label>
-          <Input
-            id="score2"
-            type="number"
-            min="0"
-          />
-        </div>
+      <div class="flex flex-col gap-3 py-4">
+        <Button id="btn-winner-player1" variant="outline" class="justify-start h-auto py-3">
+          <span id="label-player1">Spiller 1</span>
+        </Button>
+        <Button id="btn-winner-player2" variant="outline" class="justify-start h-auto py-3">
+          <span id="label-player2">Spiller 2</span>
+        </Button>
       </div>
 
       <DialogFooter>
         <Button variant="outline" data-dialog-close>
           Avbryt
-        </Button>
-        <Button id="btn-save-match">
-          Lagre
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -395,151 +380,158 @@ const TYPE_LABELS: Record<string, string> = {
 </div>
 
 <script>
-  const adminContainer = document.getElementById('tournament-admin');
-  const tournamentId = parseInt(adminContainer?.dataset.tournamentId || '0');
-  const messageContainer = document.getElementById('admin-message');
-  const alertComponent = document.getElementById('admin-alert');
-  const alertText = document.getElementById('admin-alert-text');
+  function initAdmin() {
+    const adminContainer = document.getElementById('tournament-admin');
+    const tournamentId = parseInt(adminContainer?.dataset.tournamentId || '0');
+    const messageContainer = document.getElementById('admin-message');
+    const alertComponent = document.getElementById('admin-alert');
+    const alertText = document.getElementById('admin-alert-text');
 
-  function showMessage(text: string, type: 'success' | 'error') {
-    if (!messageContainer || !alertText || !alertComponent) return;
-    alertText.textContent = text;
-    if (type === 'error') {
-      alertComponent.setAttribute('data-variant', 'destructive');
-      alertComponent.classList.add('border-destructive', 'text-destructive');
-    } else {
-      alertComponent.setAttribute('data-variant', 'default');
-      alertComponent.classList.remove('border-destructive', 'text-destructive');
-    }
-    messageContainer.classList.remove('hidden');
-    setTimeout(() => {
-      messageContainer.classList.add('hidden');
-    }, 5000);
-  }
-
-  async function updateStatus(newStatus: string) {
-    try {
-      const response = await fetch('/api/tournaments', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: tournamentId, status: newStatus })
-      });
-      if (response.ok) {
-        window.location.reload();
+    function showMessage(text: string, type: 'success' | 'error') {
+      if (!messageContainer || !alertText || !alertComponent) return;
+      alertText.textContent = text;
+      if (type === 'error') {
+        alertComponent.setAttribute('data-variant', 'destructive');
+        alertComponent.classList.add('border-destructive', 'text-destructive');
       } else {
-        showMessage('Kunne ikke endre status', 'error');
+        alertComponent.setAttribute('data-variant', 'default');
+        alertComponent.classList.remove('border-destructive', 'text-destructive');
       }
-    } catch {
-      showMessage('Noe gikk galt', 'error');
+      messageContainer.classList.remove('hidden');
+      setTimeout(() => {
+        messageContainer.classList.add('hidden');
+      }, 5000);
     }
-  }
 
-  document.getElementById('btn-start-tournament')?.addEventListener('click', () => updateStatus('active'));
-  document.getElementById('btn-complete-tournament')?.addEventListener('click', () => updateStatus('completed'));
-  document.getElementById('btn-reopen-tournament')?.addEventListener('click', () => updateStatus('active'));
-
-  document.getElementById('btn-delete-tournament')?.addEventListener('click', async () => {
-    if (!confirm('Er du sikker på at du vil slette denne turneringen? Dette kan ikke angres.')) return;
-    try {
-      const response = await fetch(`/api/tournaments?id=${tournamentId}`, { method: 'DELETE' });
-      if (response.ok) {
-        window.location.href = '/admin';
-      } else {
-        showMessage('Kunne ikke slette turnering', 'error');
-      }
-    } catch {
-      showMessage('Noe gikk galt', 'error');
-    }
-  });
-
-  document.querySelectorAll('.btn-remove-participant').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const id = (e.currentTarget as HTMLElement).dataset.id;
-      const name = (e.currentTarget as HTMLElement).dataset.name;
-      if (!confirm(`Er du sikker på at du vil fjerne ${name}?`)) return;
+    async function updateStatus(newStatus: string) {
       try {
-        const response = await fetch(`/api/participants?id=${id}`, { method: 'DELETE' });
+        const response = await fetch('/api/tournaments', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: tournamentId, status: newStatus })
+        });
         if (response.ok) {
           window.location.reload();
         } else {
-          showMessage('Kunne ikke fjerne deltaker', 'error');
+          showMessage('Kunne ikke endre status', 'error');
+        }
+      } catch {
+        showMessage('Noe gikk galt', 'error');
+      }
+    }
+
+    document.getElementById('btn-start-tournament')?.addEventListener('click', () => updateStatus('active'));
+    document.getElementById('btn-complete-tournament')?.addEventListener('click', () => updateStatus('completed'));
+    document.getElementById('btn-reopen-tournament')?.addEventListener('click', () => updateStatus('active'));
+
+    document.getElementById('btn-delete-tournament')?.addEventListener('click', async () => {
+      if (!confirm('Er du sikker på at du vil slette denne turneringen? Dette kan ikke angres.')) return;
+      try {
+        const response = await fetch(`/api/tournaments?id=${tournamentId}`, { method: 'DELETE' });
+        if (response.ok) {
+          window.location.href = '/admin';
+        } else {
+          showMessage('Kunne ikke slette turnering', 'error');
         }
       } catch {
         showMessage('Noe gikk galt', 'error');
       }
     });
-  });
 
-  const dialog = document.getElementById('edit-match-dialog') as any;
-  const matchNames = document.getElementById('match-dialog-names');
-  const labelPlayer1 = document.getElementById('label-player1');
-  const labelPlayer2 = document.getElementById('label-player2');
-  const inputScore1 = document.getElementById('score1') as HTMLInputElement;
-  const inputScore2 = document.getElementById('score2') as HTMLInputElement;
-  const btnSaveMatch = document.getElementById('btn-save-match');
-  let currentEditingMatch: any = null;
-
-  document.querySelectorAll('.btn-edit-match').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const match = JSON.parse((e.currentTarget as HTMLElement).dataset.match || '{}');
-      const p1Name = (e.currentTarget as HTMLElement).dataset.player1Name;
-      const p2Name = (e.currentTarget as HTMLElement).dataset.player2Name;
-      
-      currentEditingMatch = match;
-      if (matchNames) matchNames.textContent = `${p1Name} vs ${p2Name}`;
-      if (labelPlayer1) labelPlayer1.textContent = p1Name || 'Spiller 1';
-      if (labelPlayer2) labelPlayer2.textContent = p2Name || 'Spiller 2';
-      inputScore1.value = match.player1_score?.toString() ?? '';
-      inputScore2.value = match.player2_score?.toString() ?? '';
-      
-      dialog?.setAttribute('data-state', 'open');
-    });
-  });
-
-  document.querySelectorAll('[data-dialog-close]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      dialog?.removeAttribute('data-state');
-    });
-  });
-
-  btnSaveMatch?.addEventListener('click', async () => {
-    if (!currentEditingMatch) return;
-    
-    const score1 = parseInt(inputScore1.value);
-    const score2 = parseInt(inputScore2.value);
-    
-    if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
-      alert('Ugyldig resultat - bruk positive tall');
-      return;
-    }
-
-    if (score1 === score2) {
-      alert('Kampen må ha en vinner (uavgjort ikke tillatt)');
-      return;
-    }
-
-    const winnerId = score1 > score2 ? currentEditingMatch.player1_id : currentEditingMatch.player2_id;
-    
-    try {
-      const response = await fetch('/api/matches', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: currentEditingMatch.id,
-          player1Score: score1,
-          player2Score: score2,
-          winnerId,
-          playedAt: new Date().toISOString()
-        })
+    const removeButtons = document.querySelectorAll('.btn-remove-participant');
+    removeButtons.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const id = target.dataset.id;
+        const name = target.dataset.name;
+        if (!confirm(`Er du sikker på at du vil fjerne ${name}?`)) return;
+        try {
+          const response = await fetch(`/api/participants?id=${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            showMessage('Kunne ikke fjerne deltaker', 'error');
+          }
+        } catch {
+          showMessage('Noe gikk galt', 'error');
+        }
       });
+    });
 
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        alert('Kunne ikke lagre resultat');
+    const dialog = document.getElementById('edit-match-dialog');
+    const matchNames = document.getElementById('match-dialog-names');
+    const labelPlayer1 = document.getElementById('label-player1');
+    const labelPlayer2 = document.getElementById('label-player2');
+    let currentEditingMatch: { id: number; player1_id: number; player2_id: number } | null = null;
+
+    const editMatchButtons = document.querySelectorAll('.btn-edit-match');
+    editMatchButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const match = JSON.parse(target.dataset.match || '{}');
+        const p1Name = target.dataset.player1Name;
+        const p2Name = target.dataset.player2Name;
+        
+        currentEditingMatch = match;
+        if (matchNames) matchNames.textContent = `${p1Name} vs ${p2Name}`;
+        if (labelPlayer1) labelPlayer1.textContent = p1Name || 'Spiller 1';
+        if (labelPlayer2) labelPlayer2.textContent = p2Name || 'Spiller 2';
+        
+        dialog?.dispatchEvent(new CustomEvent('dialog:open'));
+      });
+    });
+
+    async function registerWinner(winnerId: number) {
+      if (!currentEditingMatch) return;
+      
+      const isPlayer1Winner = winnerId === currentEditingMatch.player1_id;
+      
+      try {
+        const response = await fetch('/api/matches', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: currentEditingMatch.id,
+            winnerId,
+            player1Score: isPlayer1Winner ? 1 : 0,
+            player2Score: isPlayer1Winner ? 0 : 1,
+            playedAt: new Date().toISOString()
+          })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          alert('Kunne ikke lagre resultat');
+        }
+      } catch {
+        alert('Noe gikk galt');
       }
-    } catch {
-      alert('Noe gikk galt');
     }
+
+    document.getElementById('btn-winner-player1')?.addEventListener('click', () => {
+      if (currentEditingMatch) registerWinner(currentEditingMatch.player1_id);
+    });
+
+    document.getElementById('btn-winner-player2')?.addEventListener('click', () => {
+      if (currentEditingMatch) registerWinner(currentEditingMatch.player2_id);
+    });
+  }
+
+  let initialized = false;
+  function safeInit() {
+    if (initialized) return;
+    initialized = true;
+    initAdmin();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+  } else {
+    safeInit();
+  }
+  document.addEventListener('astro:page-load', () => {
+    initialized = false;
+    safeInit();
   });
 </script>

@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: biljard
   namespace: bussfaktor
+  labels:
+    team: bussfaktor
 spec:
   image: "{{ image }}"
   port: 8080
@@ -14,13 +16,16 @@ spec:
     initialDelay: 10
   replicas:
     min: 1
-    max: 2
+    max: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 256Mi
     requests:
       cpu: 50m
-      memory: 256Mi
+      memory: 128Mi
+  strategy:
+    type: Recreate
+  terminationGracePeriodSeconds: 30    
   azure:
     application:
       enabled: true

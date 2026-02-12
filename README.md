@@ -40,12 +40,31 @@ Appen bruker [Wonderwall](https://doc.nais.io/auth/entra-id/how-to/login/) sidec
 - **Alle ansatte** kan se turneringer og melde seg på
 - **Admin-gruppe** kan opprette/administrere turneringer
 
-## Miljøvariabler
-
-| Variabel | Beskrivelse |
-|----------|-------------|
-| `ADMIN_GROUP_ID` | Azure AD gruppe-ID for administratorer |
-
 ## Lokalt utvikling
 
-I utviklingsmodus (`npm run dev`) er autentisering deaktivert og du får en test-bruker automatisk.
+I utviklingsmodus (`npm run dev`) får du automatisk en test-bruker med admin-tilgang.
+
+### Test som vanlig bruker
+
+Legg til `?admin=false` i URL-en for å teste som ikke-admin:
+
+```
+http://localhost:8080/turneringer?admin=false
+```
+
+### Reset database
+
+```bash
+# Via API (kun i dev)
+curl -X POST http://localhost:8080/api/dev/reset
+
+# Eller slett filen
+rm data/tournament.db
+```
+
+### Kjør tester
+
+```bash
+npm test           # Kjør en gang
+npm run test:watch # Kjør kontinuerlig
+```

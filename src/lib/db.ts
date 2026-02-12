@@ -6,19 +6,8 @@ const dbPath = process.env.NODE_ENV === 'production'
   ? '/app/data/tournament.db'
   : resolve('./data/tournament.db');
 
-let _db: DatabaseType | null = null;
-
-function getDb(): DatabaseType {
-  if (_db) return _db;
-
-  const dir = dirname(dbPath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-
-  _db = new Database(dbPath);
-
-  _db.exec(`
+export function initializeSchema(db: DatabaseType): void {
+  db.exec(`
   CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -62,6 +51,20 @@ function getDb(): DatabaseType {
     FOREIGN KEY (player2_id) REFERENCES participants(id)
     );
   `);
+}
+
+let _db: DatabaseType | null = null;
+
+function getDb(): DatabaseType {
+  if (_db) return _db;
+
+  const dir = dirname(dbPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  _db = new Database(dbPath);
+  initializeSchema(_db);
 
   return _db;
 }

@@ -1,7 +1,18 @@
 ---
 description: "Guidelines for writing Node.js and JavaScript code with Vitest testing"
-applyTo: '**/*.js, **/*.mjs, **/*.cjs'
 ---
+# Copilot Behavior
+
+Do:
+- Be direct and concise in your response
+- Write code for clarity, not cleverness
+- Follow existing code patterns in the project
+
+Don't:
+- Add code comments unless explicitly asked
+- Create documentation files unless explicitly asked
+- Use verbose or overly polite language
+- Introduce new dependencies without justification
 
 # Code Generation Guidelines
 
