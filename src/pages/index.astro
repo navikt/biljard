@@ -1,104 +1,125 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getAllTournaments } from '../lib/db';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import Layout from "../layouts/Layout.astro";
+import { getAllTournaments } from "../lib/db";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import navBiljardLogo from "../img/nav_biljard.png";
 
 const tournaments = getAllTournaments();
-const activeTournaments = tournaments.filter(t => t.status === 'registration' || t.status === 'active');
+const activeTournaments = tournaments.filter(
+  (t) => t.status === "registration" || t.status === "active",
+);
 ---
 
-<Layout title="Biljardturnering - NAV">
-  <div class="text-center py-12 md:py-24 bg-linear-to-br from-blue-50 to-background rounded-3xl mb-12 px-6">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight lg:text-6xl mb-4">
-      Velkommen til Nav sin biljardturnering! 🎱
-    </h1>
-    <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-      Hvert semester arrangerer vi en biljardturnering! Alle nivåer av ferdighet er hjertelig velkomne. 
-      Vi legger vekt på at dette er et sosialt arrangement som lar deg støte på kollegaer fra alle kriker og kroker! 🤩
+<Layout title="NAV Biljard">
+  <div class="flex flex-col items-center justify-center py-16 md:py-28">
+    <img
+      src={navBiljardLogo.src}
+      alt="NAV Biljard"
+      class="w-56 md:w-72 mb-10"
+    />
+    <p
+      class="text-lg text-muted-foreground max-w-md text-center leading-relaxed"
+    >
+      Meld deg på semesterets turnering og møt kollegaer på tvers av
+      organisasjonen.
     </p>
+    {
+      activeTournaments.length > 0 && activeTournaments[0] && (
+        <a href={`/turnering/${activeTournaments[0].id}`} class="mt-8">
+          <Button size="lg">Meld deg på</Button>
+        </a>
+      )
+    }
   </div>
 
-  {activeTournaments.length > 0 ? (
-    <section class="mb-16">
-      <h2 class="text-3xl font-bold mb-6">Aktive turneringer</h2>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {activeTournaments.map((tournament) => (
-          <a href={`/turnering/${tournament.id}`} class="block no-underline">
-            <Card class="h-full hover:bg-muted/50 transition-colors">
-              <CardHeader>
-                <div class="flex justify-between items-start gap-2 mb-2">
-                  <CardTitle>{tournament.name}</CardTitle>
-                  <Badge variant={tournament.status === 'registration' ? 'default' : 'secondary'}>
-                    {tournament.status === 'registration' ? 'Påmelding åpen' : 'Pågår'}
-                  </Badge>
-                </div>
-                <CardDescription>
-                  <p class="mb-2">{tournament.description}</p>
-                  {tournament.registration_deadline && tournament.status === 'registration' && (
-                    <p class="text-sm font-medium">
-                      <strong>Påmeldingsfrist:</strong> {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO')}
+  {
+    activeTournaments.length > 0 && (
+      <section class="mb-20">
+        <h2 class="text-xl font-semibold mb-5">Aktive turneringer</h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {activeTournaments.map((tournament) => (
+            <a href={`/turnering/${tournament.id}`} class="block group">
+              <Card class="h-full transition-all group-hover:shadow-md group-hover:border-foreground/20">
+                <CardHeader>
+                  <div class="flex justify-between items-start gap-2">
+                    <CardTitle class="text-lg">{tournament.name}</CardTitle>
+                    <Badge
+                      variant={
+                        tournament.status === "registration"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {tournament.status === "registration" ? "Åpen" : "Pågår"}
+                    </Badge>
+                  </div>
+                  {tournament.description && (
+                    <p class="text-sm text-muted-foreground mt-2">
+                      {tournament.description}
                     </p>
                   )}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </a>
-        ))}
-      </div>
-    </section>
-  ) : (
-    <Alert className="mb-12">
-      <AlertTitle>Ingen aktive turneringer</AlertTitle>
-      <AlertDescription>
-        Det er for øyeblikket ingen aktive turneringer. Sjekk tilbake senere eller kontakt en administrator.
-      </AlertDescription>
-    </Alert>
-  )}
+                  {tournament.registration_deadline &&
+                    tournament.status === "registration" && (
+                      <p class="text-sm text-muted-foreground mt-2">
+                        Frist:{" "}
+                        {new Date(
+                          tournament.registration_deadline,
+                        ).toLocaleDateString("nb-NO")}
+                      </p>
+                    )}
+                </CardHeader>
+              </Card>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
-  <section class="my-16">
-    <h2 class="text-3xl font-bold mb-6">Slik fungerer det</h2>
-    <div class="grid gap-6 md:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>📝 Meld deg på</CardTitle>
-        </CardHeader>
-        <CardContent>
-          Finn en aktiv turnering og registrer deg med navn og e-post. 
-          Påmeldingen er åpen frem til fristen.
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>🎯 Spill kampene</CardTitle>
-        </CardHeader>
-        <CardContent>
-          Du vil få tildelt motstandere gjennom turneringen. 
-          Dere avtaler selv tid og sted for kampene.
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>🏆 Følg med på resultater</CardTitle>
-        </CardHeader>
-        <CardContent>
-          Resultater rapporteres av admin og du kan følge med på stillingen underveis i turneringen.
-        </CardContent>
-      </Card>
+  <section class="mb-20">
+    <h2 class="text-xl font-semibold mb-5">Slik fungerer det</h2>
+    <div
+      class="grid md:grid-cols-3 border rounded-xl overflow-hidden md:divide-x divide-y md:divide-y-0 divide-border"
+    >
+      <div class="p-8">
+        <span
+          class="text-xs font-medium uppercase tracking-widest text-muted-foreground"
+          >01</span
+        >
+        <h3 class="font-semibold mt-3 mb-1">Meld deg på</h3>
+        <p class="text-sm text-muted-foreground">
+          Registrer deg på en aktiv turnering før fristen.
+        </p>
+      </div>
+      <div class="p-8">
+        <span
+          class="text-xs font-medium uppercase tracking-widest text-muted-foreground"
+          >02</span
+        >
+        <h3 class="font-semibold mt-3 mb-1">Spill kampene</h3>
+        <p class="text-sm text-muted-foreground">
+          Avtal tid og sted med motstanderne dine.
+        </p>
+      </div>
+      <div class="p-8">
+        <span
+          class="text-xs font-medium uppercase tracking-widest text-muted-foreground"
+          >03</span
+        >
+        <h3 class="font-semibold mt-3 mb-1">Følg resultater</h3>
+        <p class="text-sm text-muted-foreground">
+          Se stillingen og følg med underveis.
+        </p>
+      </div>
     </div>
   </section>
 
-  <section class="text-center py-12 bg-muted/30 rounded-3xl mt-12">
-    <h2 class="text-3xl font-bold mb-4">Bli med i #biljard på Slack! 💬</h2>
-    <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-      For mer informasjon og oppdateringer om turneringene, bli med i Slack-kanalen #biljard.
+  <section class="text-center pb-12">
+    <p class="text-muted-foreground">
+      Bli med i <span class="font-medium text-foreground">#biljard</span> på Slack
+      for oppdateringer.
     </p>
-    <div class="flex justify-center gap-4">
-      <a href="/turneringer">
-        <Button size="lg">Se alle turneringer</Button>
-      </a>
-    </div>
   </section>
 </Layout>

@@ -73,12 +73,12 @@
   --card-foreground: var(--color-neutral-950);
   --popover: var(--color-white);
   --popover-foreground: var(--color-neutral-950);
-  --primary: var(--color-blue-700);
+  --primary: var(--color-emerald-800);
   --primary-foreground: var(--color-neutral-50);
-  --primary-accent: var(--color-blue-700);
-  --secondary: var(--color-fuchsia-700);
+  --primary-accent: var(--color-emerald-800);
+  --secondary: var(--color-emerald-600);
   --secondary-foreground: var(--color-neutral-50);
-  --secondary-accent: var(--color-fuchsia-700);
+  --secondary-accent: var(--color-emerald-600);
   --muted: var(--color-neutral-100);
   --muted-foreground: var(--color-neutral-600);
   --accent: var(--color-neutral-100);
@@ -98,7 +98,7 @@
   /* sidebar variables */
   --sidebar-background: var(--color-neutral-50);
   --sidebar-foreground: var(--color-neutral-950);
-  --sidebar-primary: var(--color-blue-700);
+  --sidebar-primary: var(--color-emerald-800);
   --sidebar-primary-foreground: var(--color-neutral-50);
   --sidebar-accent: var(--color-neutral-100);
   --sidebar-accent-foreground: var(--color-neutral-900);
@@ -112,12 +112,12 @@
   --card-foreground: var(--color-neutral-50);
   --popover: var(--color-neutral-800);
   --popover-foreground: var(--color-neutral-50);
-  --primary: var(--color-blue-700);
+  --primary: var(--color-emerald-800);
   --primary-foreground: var(--color-neutral-50);
-  --primary-accent: var(--color-blue-400);
-  --secondary: var(--color-fuchsia-700);
+  --primary-accent: var(--color-emerald-400);
+  --secondary: var(--color-emerald-600);
   --secondary-foreground: var(--color-neutral-50);
-  --secondary-accent: var(--color-fuchsia-400);
+  --secondary-accent: var(--color-emerald-400);
   --muted: var(--color-neutral-800);
   --muted-foreground: var(--color-neutral-400);
   --accent: var(--color-neutral-700);
@@ -136,7 +136,7 @@
   /* sidebars variables */
   --sidebar-background: var(--color-neutral-900);
   --sidebar-foreground: var(--color-neutral-50);
-  --sidebar-primary: var(--color-blue-700);
+  --sidebar-primary: var(--color-emerald-800);
   --sidebar-primary-foreground: var(--color-neutral-50);
   --sidebar-accent: var(--color-neutral-800);
   --sidebar-accent-foreground: var(--color-neutral-100);

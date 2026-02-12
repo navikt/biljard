@@ -35,7 +35,6 @@ function extractUserFromToken(authHeader: string | null): User | null {
   };
 }
 
-// TODO: Replace with your actual AD group ID for admins
 const ADMIN_GROUP_ID = import.meta.env.ADMIN_GROUP_ID ?? '';
 
 const auth = defineMiddleware(async (context, next) => {

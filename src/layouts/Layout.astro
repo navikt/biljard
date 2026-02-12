@@ -7,7 +7,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Administrer biljardturneringer på arbeidsplassen" } = Astro.props;
+const { title, description = "Nav biljardturnering" } = Astro.props;
 const currentPath = Astro.url.pathname;
 const user = (Astro.locals as { user?: User | null }).user;
 ---
@@ -22,64 +22,143 @@ const user = (Astro.locals as { user?: User | null }).user;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class="bg-background text-foreground antialiased min-h-screen flex flex-col">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:p-4">
+  <body
+    class="bg-background text-foreground antialiased min-h-screen flex flex-col"
+  >
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:p-4"
+    >
       Hopp til hovedinnhold
     </a>
-    
-    <header class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="container mx-auto max-w-6xl px-4 md:px-6 flex h-16 items-center justify-between">
+
+    <header
+      class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60"
+    >
+      <div
+        class="container mx-auto max-w-6xl px-4 md:px-6 flex h-16 items-center justify-between"
+      >
         <div class="flex items-center gap-6">
-          <a href="/" class="flex items-center space-x-2 font-bold text-xl tracking-tight hover:text-primary transition-colors">
-            <span>🎱 Biljardturnering</span>
+          <a
+            href="/"
+            class="flex items-center space-x-2 font-bold text-xl tracking-tight hover:text-primary transition-colors"
+          >
+            <span>NAV Biljard</span>
           </a>
           <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-            <a href="/" class={currentPath === "/" ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Hjem</a>
-            <a href="/turneringer" class={currentPath.startsWith("/turnering") && !currentPath.startsWith("/admin") ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Turneringer</a>
-            <a href="/admin" class={currentPath.startsWith("/admin") ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}>Admin</a>
+            <a
+              href="/"
+              class={currentPath === "/"
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground transition-colors"}
+              >Hjem</a
+            >
+            <a
+              href="/turneringer"
+              class={currentPath.startsWith("/turnering") &&
+              !currentPath.startsWith("/admin")
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground transition-colors"}
+              >Turneringer</a
+            >
+            <a
+              href="/admin"
+              class={currentPath.startsWith("/admin")
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground transition-colors"}
+              >Admin</a
+            >
           </nav>
         </div>
-        
+
         <div class="flex items-center gap-4">
-          {user && (
-            <span class="hidden md:block text-sm text-muted-foreground">
-              {user.name}
-            </span>
-          )}
-          <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-md hover:bg-muted transition-colors" aria-label="Meny">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          {
+            user && (
+              <span class="hidden md:block text-sm text-muted-foreground">
+                {user.name}
+              </span>
+            )
+          }
+          <button
+            id="mobile-menu-toggle"
+            class="md:hidden p-2 rounded-md hover:bg-muted transition-colors"
+            aria-label="Meny"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><line x1="3" y1="12" x2="21" y2="12"></line><line
+                x1="3"
+                y1="6"
+                x2="21"
+                y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg
+            >
           </button>
         </div>
       </div>
-      
+
       <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden md:hidden border-b border-border bg-background px-4 py-4 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-200">
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden border-b border-border bg-background px-4 py-4 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-200"
+      >
         <nav class="flex flex-col gap-4 text-sm font-medium">
-          <a href="/" class={currentPath === "/" ? "text-primary" : "text-muted-foreground"}>Hjem</a>
-          <a href="/turneringer" class={currentPath.startsWith("/turnering") && !currentPath.startsWith("/admin") ? "text-primary" : "text-muted-foreground"}>Turneringer</a>
-          <a href="/admin" class={currentPath.startsWith("/admin") ? "text-primary" : "text-muted-foreground"}>Admin</a>
+          <a
+            href="/"
+            class={currentPath === "/"
+              ? "text-primary"
+              : "text-muted-foreground"}>Hjem</a
+          >
+          <a
+            href="/turneringer"
+            class={currentPath.startsWith("/turnering") &&
+            !currentPath.startsWith("/admin")
+              ? "text-primary"
+              : "text-muted-foreground"}>Turneringer</a
+          >
+          <a
+            href="/admin"
+            class={currentPath.startsWith("/admin")
+              ? "text-primary"
+              : "text-muted-foreground"}>Admin</a
+          >
         </nav>
       </div>
     </header>
 
-    <main id="main-content" class="flex-1 container mx-auto max-w-6xl px-4 md:px-6 py-8 md:py-12 focus:outline-none" tabindex="-1">
+    <main
+      id="main-content"
+      class="flex-1 container mx-auto max-w-6xl px-4 md:px-6 py-8 md:py-12 focus:outline-none"
+      tabindex="-1"
+    >
       <slot />
     </main>
 
     <footer class="border-t py-6 md:py-0">
-      <div class="container mx-auto max-w-6xl px-4 md:px-6 flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-        <p class="text-center text-sm leading-loose text-muted-foreground md:text-left">
-          © {new Date().getFullYear()} Biljardturnering - NAV. Bygget med Astro og Starwind UI.
+      <div
+        class="container mx-auto max-w-6xl px-4 md:px-6 flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row"
+      >
+        <p
+          class="text-center text-sm leading-loose text-muted-foreground md:text-left"
+        >
+          © {new Date().getFullYear()} NAV Biljard
         </p>
       </div>
     </footer>
 
     <script>
-      const toggle = document.getElementById('mobile-menu-toggle');
-      const menu = document.getElementById('mobile-menu');
-      
-      toggle?.addEventListener('click', () => {
-        menu?.classList.toggle('hidden');
+      const toggle = document.getElementById("mobile-menu-toggle");
+      const menu = document.getElementById("mobile-menu");
+
+      toggle?.addEventListener("click", () => {
+        menu?.classList.toggle("hidden");
       });
     </script>
   </body>
@@ -90,7 +169,7 @@ const user = (Astro.locals as { user?: User | null }).user;
   html {
     scroll-behavior: smooth;
   }
-  
+
   /* Custom scrollbar for better look */
   ::-webkit-scrollbar {
     width: 8px;
