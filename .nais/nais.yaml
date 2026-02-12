@@ -32,7 +32,7 @@ spec:
       allowAllUsers: true
       claims:
         groups:
-          - id: "95c8e577-168f-4c03-b14e-658947a94f3a" 
+          - id: "95c8e577-168f-4c03-b14e-658947a94f3a" # Biljard AD Gruppe
         extra:
           - NAVident
     sidecar:
@@ -42,7 +42,7 @@ spec:
         - /api/internal/*
   env:
     - name: ADMIN_GROUP_ID
-      value: "95c8e577-168f-4c03-b14e-658947a94f3a" 
+      value: "95c8e577-168f-4c03-b14e-658947a94f3a" # Biljard AD Gruppe
   filesFrom:
     - persistentVolumeClaim: biljard-data
       mountPath: /app/data

@@ -14,7 +14,7 @@ function parseJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
-const ADMIN_GROUP_ID = import.meta.env.ADMIN_GROUP_ID ?? '';
+const ADMIN_GROUP_ID = process.env.ADMIN_GROUP_ID ?? '';
 const DEV_ADMIN_GROUP = 'dev-admin-group';
 
 function extractUserFromToken(authHeader: string | null): User | null {

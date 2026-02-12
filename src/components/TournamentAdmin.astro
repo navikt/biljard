@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Tournament, Participant, Match } from '../lib/db';
 
 interface Standing {
@@ -123,7 +123,7 @@ const TYPE_LABELS: Record<string, string> = {
               <div class="sm:col-span-2">
                 <dt class="font-medium text-muted-foreground mb-2">Fremgang</dt>
                 <dd class="flex items-center gap-2">
-                  <Progress value={completionPercentage} class="w-[120px]" />
+                  <Progress value={completionPercentage} class="w-30" />
                   <span class="text-sm">
                     {completionPercentage}% ({completedMatches} av {matches.length} kamper)
                   </span>
@@ -183,7 +183,7 @@ const TYPE_LABELS: Record<string, string> = {
                     <TableHead>E-post</TableHead>
                     <TableHead>Slack</TableHead>
                     <TableHead>Registrert</TableHead>
-                    <TableHead class="w-[100px]">Handlinger</TableHead>
+                    <TableHead class="w-25">Handlinger</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -240,7 +240,7 @@ const TYPE_LABELS: Record<string, string> = {
                           <TableHead>Spiller 1</TableHead>
                           <TableHead>Spiller 2</TableHead>
                           <TableHead>Resultat</TableHead>
-                          <TableHead class="w-[100px]">Handlinger</TableHead>
+                          <TableHead class="w-25">Handlinger</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -314,7 +314,7 @@ const TYPE_LABELS: Record<string, string> = {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead class="w-[50px]">#</TableHead>
+                    <TableHead class="w-12.5">#</TableHead>
                     <TableHead>Spiller</TableHead>
                     <TableHead>Spilt</TableHead>
                     <TableHead>Seire</TableHead>
