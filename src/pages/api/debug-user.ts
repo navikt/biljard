@@ -5,8 +5,8 @@ export const GET: APIRoute = async ({ locals }) => {
   
   return new Response(JSON.stringify({
     user,
-    adminGroupId: import.meta.env.ADMIN_GROUP_ID,
-    hasAdminGroup: user?.groups?.includes(import.meta.env.ADMIN_GROUP_ID ?? ''),
+    adminGroupId: process.env.ADMIN_GROUP_ID,
+    hasAdminGroup: user?.groups?.includes(process.env.ADMIN_GROUP_ID ?? ''),
   }, null, 2), {
     status: 200,
     headers: {
