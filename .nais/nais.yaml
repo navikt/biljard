@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: biljardturnering
+  name: biljard
   namespace: bussfaktor
 spec:
   image: "{{ image }}"
@@ -27,7 +27,7 @@ spec:
       allowAllUsers: true
       claims:
         groups:
-          - id: "55a93a3d-9ecb-4e76-af06-85ef2e32ff98" 
+          - id: "95c8e577-168f-4c03-b14e-658947a94f3a" 
         extra:
           - NAVident
     sidecar:
@@ -37,9 +37,9 @@ spec:
         - /api/internal/*
   env:
     - name: ADMIN_GROUP_ID
-      value: "55a93a3d-9ecb-4e76-af06-85ef2e32ff98" 
+      value: "95c8e577-168f-4c03-b14e-658947a94f3a" 
   filesFrom:
     - persistentVolumeClaim: biljard-data
       mountPath: /app/data
   ingresses:
-    - https://biljard.intern.dev.nav.no
+    - https://biljard.nav.no
