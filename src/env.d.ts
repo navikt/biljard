@@ -1,9 +1,7 @@
 /// <reference types="astro/client" />
 
-import type { User } from './middleware';
-
 declare namespace App {
   interface Locals {
-    user: User;
+    user: import("./types/User").User;
   }
 }

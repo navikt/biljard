@@ -19,12 +19,13 @@ spec:
     max: 1
   resources:
     limits:
-      memory: 32Mi
+      memory: 256Mi
     requests:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 50m
+      memory: 128Mi
   strategy:
-    type: Recreate    
+    type: Recreate
+  terminationGracePeriodSeconds: 30    
   azure:
     application:
       enabled: true

@@ -1,61 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Database from 'better-sqlite3';
-import { existsSync, unlinkSync } from 'fs';
-import { resolve } from 'path';
+import { existsSync, unlinkSync, mkdirSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { initializeSchema } from '../src/lib/db';
 
 const TEST_DB_PATH = resolve('./data/test.db');
 
 function createTestDb() {
+  const dir = dirname(TEST_DB_PATH);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  
   if (existsSync(TEST_DB_PATH)) {
     unlinkSync(TEST_DB_PATH);
   }
-  
+
   const db = new Database(TEST_DB_PATH);
-  
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS tournaments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT,
-      type TEXT NOT NULL DEFAULT 'round-robin',
-      rounds INTEGER NOT NULL DEFAULT 10,
-      round_duration_weeks INTEGER NOT NULL DEFAULT 2,
-      registration_deadline TEXT,
-      start_date TEXT,
-      end_date TEXT,
-      status TEXT NOT NULL DEFAULT 'registration',
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS participants (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tournament_id INTEGER NOT NULL,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL,
-      nav_ident TEXT,
-      slack_handle TEXT,
-      registered_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
-      UNIQUE(tournament_id, email)
-    );
-
-    CREATE TABLE IF NOT EXISTS matches (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tournament_id INTEGER NOT NULL,
-      round INTEGER NOT NULL,
-      player1_id INTEGER NOT NULL,
-      player2_id INTEGER NOT NULL,
-      player1_score INTEGER,
-      player2_score INTEGER,
-      winner_id INTEGER,
-      played_at TEXT,
-      reported_by TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
-      FOREIGN KEY (player1_id) REFERENCES participants(id),
-      FOREIGN KEY (player2_id) REFERENCES participants(id)
-    );
-  `);
+  initializeSchema(db);
   
   return db;
 }

@@ -1,18 +1,30 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { getTournamentById, getParticipantsByTournament, getMatchesByTournament, getStandings } from '../../lib/db';
-import RegistrationForm from '../../components/RegistrationForm.astro';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import Layout from "../../layouts/Layout.astro";
+import {
+  getTournamentById,
+  getParticipantsByTournament,
+  getMatchesByTournament,
+  getStandings,
+} from "../../lib/db";
+import RegistrationForm from "../../components/RegistrationForm.astro";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const { id } = Astro.params;
-const tournamentId = parseInt(id || '0');
+const tournamentId = parseInt(id || "0");
 const tournament = getTournamentById(tournamentId);
 
 if (!tournament) {
-  return Astro.redirect('/turneringer');
+  return Astro.redirect("/turneringer");
 }
 
 const user = Astro.locals.user;
@@ -20,46 +32,56 @@ const participants = getParticipantsByTournament(tournamentId);
 const matches = getMatchesByTournament(tournamentId);
 const standings = getStandings(tournamentId);
 
-const isRegistrationOpen = tournament.status === 'registration' && 
-  (!tournament.registration_deadline || new Date(tournament.registration_deadline) > new Date());
+const isRegistrationOpen =
+  tournament.status === "registration" &&
+  (!tournament.registration_deadline ||
+    new Date(tournament.registration_deadline) > new Date());
 
-const isAlreadyRegistered = user && participants.some(p => p.email.toLowerCase() === user.email.toLowerCase());
+const isAlreadyRegistered =
+  user &&
+  participants.some((p) => p.email.toLowerCase() === user.email.toLowerCase());
 
 const matchesByRound: Record<number, typeof matches> = {};
-matches.forEach(match => {
+matches.forEach((match) => {
   if (!matchesByRound[match.round]) {
     matchesByRound[match.round] = [];
   }
   matchesByRound[match.round]!.push(match);
 });
 
-const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
+const participantsMap = Object.fromEntries(participants.map((p) => [p.id, p]));
 ---
 
 <Layout title={`${tournament.name} - Biljardturnering`}>
   <div class="flex items-center gap-4 flex-wrap mb-8">
     <h1 class="text-4xl font-bold">{tournament.name}</h1>
-    <Badge variant={
-      tournament.status === 'registration' ? 'default' : 
-      tournament.status === 'active' ? 'secondary' : 'outline'
-    }>
-      {tournament.status === 'registration' ? 'Påmelding åpen' : 
-       tournament.status === 'active' ? 'Pågår' : 'Avsluttet'}
+    <Badge
+      variant={tournament.status === "registration"
+        ? "default"
+        : tournament.status === "active"
+          ? "secondary"
+          : "outline"}
+    >
+      {
+        tournament.status === "registration"
+          ? "Påmelding åpen"
+          : tournament.status === "active"
+            ? "Pågår"
+            : "Avsluttet"
+      }
     </Badge>
   </div>
 
-  {tournament.description && (
-    <Card class="mb-6">
-      <CardContent class="pt-6">
-    <Card class="mb-6">
-      <CardContent class="pt-6">
-        <p>{tournament.description}</p>
-      </CardContent>
-    </Card>
-  )}
+  {
+    tournament.description && (
+      <Card class="mb-6">
+        <CardContent class="pt-6">
+          <p>{tournament.description}</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
-  <Card class="mb-8">
-    <CardContent class="pt-6">
   <Card class="mb-8">
     <CardContent class="pt-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -71,26 +93,35 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
           <span class="text-muted-foreground">Varighet per runde</span>
           <span class="font-bold">{tournament.round_duration_weeks} uker</span>
         </div>
-        {tournament.registration_deadline && (
-          <div class="flex flex-col gap-1">
-            <span class="text-muted-foreground">Påmeldingsfrist</span>
-            <span class="font-bold">
-              {new Date(tournament.registration_deadline).toLocaleDateString('nb-NO', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
-          </div>
-        )}
-        {tournament.start_date && (
-          <div class="flex flex-col gap-1">
-            <span class="text-muted-foreground">Oppstart</span>
-            <span class="font-bold">{new Date(tournament.start_date).toLocaleDateString('nb-NO')}</span>
-          </div>
-        )}
+        {
+          tournament.registration_deadline && (
+            <div class="flex flex-col gap-1">
+              <span class="text-muted-foreground">Påmeldingsfrist</span>
+              <span class="font-bold">
+                {new Date(tournament.registration_deadline).toLocaleDateString(
+                  "nb-NO",
+                  {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  },
+                )}
+              </span>
+            </div>
+          )
+        }
+        {
+          tournament.start_date && (
+            <div class="flex flex-col gap-1">
+              <span class="text-muted-foreground">Oppstart</span>
+              <span class="font-bold">
+                {new Date(tournament.start_date).toLocaleDateString("nb-NO")}
+              </span>
+            </div>
+          )
+        }
         <div class="flex flex-col gap-1">
           <span class="text-muted-foreground">Påmeldte</span>
           <span class="font-bold">{participants.length} deltakere</span>
@@ -99,136 +130,173 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
     </CardContent>
   </Card>
 
-  {isRegistrationOpen && user && !isAlreadyRegistered && (
-    <section class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Meld deg på</h2>
-      <RegistrationForm tournamentId={tournamentId} user={user} />
-    </section>
-  )}
+  {
+    isRegistrationOpen && user && !isAlreadyRegistered && (
+      <section class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Meld deg på</h2>
+        <RegistrationForm tournamentId={tournamentId} user={user} />
+      </section>
+    )
+  }
 
-  {isAlreadyRegistered && (
-    <Alert class="mt-8">
-      <AlertTitle>Du er påmeldt! ✅</AlertTitle>
-      <AlertDescription>
-        Du er allerede registrert i denne turneringen. Vi sees på biljardbordet!
-      </AlertDescription>
-    </Alert>
-  )}
+  {
+    isAlreadyRegistered && (
+      <Alert class="mt-8">
+        <AlertTitle>Du er påmeldt! ✅</AlertTitle>
+        <AlertDescription>
+          Du er allerede registrert i denne turneringen. Vi sees på
+          biljardbordet!
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
-  {!isRegistrationOpen && tournament.status === 'registration' && (
-    <Alert variant="warning">
-      <AlertTitle>Påmelding stengt</AlertTitle>
-      <AlertDescription>
-        Påmeldingsfristen har utløpt. Kontakt administrator hvis du ønsker å delta.
-      </AlertDescription>
-    </Alert>
-  )}
+  {
+    !isRegistrationOpen && tournament.status === "registration" && (
+      <Alert variant="warning">
+        <AlertTitle>Påmelding stengt</AlertTitle>
+        <AlertDescription>
+          Påmeldingsfristen har utløpt. Kontakt administrator hvis du ønsker å
+          delta.
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
-  {standings.length > 0 && (tournament.status === 'active' || tournament.status === 'completed') && (
-    <section class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Tabell</h2>
-      <div class="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-12.5">#</TableHead>
-              <TableHead>Spiller</TableHead>
-              <TableHead>Spilt</TableHead>
-              <TableHead>Seire</TableHead>
-              <TableHead>Tap</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {standings.map((standing, index) => (
-              <TableRow>
-                <TableCell>
-                  {index === 0 && '🥇 '}
-                  {index === 1 && '🥈 '}
-                  {index === 2 && '🥉 '}
-                  {index + 1}
-                </TableCell>
-                <TableCell class={index < 3 ? 'font-bold' : ''}>
-                <TableCell class={index < 3 ? 'font-bold' : ''}>
-                  {standing.participant.name}
-                </TableCell>
-                <TableCell>{standing.played}</TableCell>
-                <TableCell class="text-green-600 font-medium">{standing.wins}</TableCell>
-                <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
-                <TableCell class="text-green-600 font-medium">{standing.wins}</TableCell>
-                <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </section>
-  )}
+  {
+    standings.length > 0 &&
+      (tournament.status === "active" || tournament.status === "completed") && (
+        <section class="mt-8">
+          <h2 class="text-2xl font-bold mb-4">Tabell</h2>
+          <div class="border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="w-12.5">#</TableHead>
+                  <TableHead>Spiller</TableHead>
+                  <TableHead>Spilt</TableHead>
+                  <TableHead>Seire</TableHead>
+                  <TableHead>Tap</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {standings.map((standing, index) => (
+                  <TableRow>
+                    <TableCell>
+                      {index === 0 && "🥇 "}
+                      {index === 1 && "🥈 "}
+                      {index === 2 && "🥉 "}
+                      {index + 1}
+                    </TableCell>
+                    <TableCell class={index < 3 ? "font-bold" : ""}>
+                      {standing.participant.name}
+                    </TableCell>
+                    <TableCell>{standing.played}</TableCell>
+                    <TableCell class="text-green-600 font-medium">
+                      {standing.wins}
+                    </TableCell>
+                    <TableCell
+                      class={standing.losses > 0 ? "text-destructive" : ""}
+                    >
+                      {standing.losses}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </section>
+      )
+  }
 
-  {Object.keys(matchesByRound).length > 0 && (
-    <section class="mt-8">
-    <section class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Kamper</h2>
-      {Object.entries(matchesByRound).map(([round, roundMatches]) => (
-        <Card class="mb-4">
-        <Card class="mb-4">
-          <CardHeader>
-            <CardTitle class="text-lg">Runde {round}</CardTitle>
-            <CardTitle class="text-lg">Runde {round}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-3">
-              {roundMatches.map(match => {
-                const player1 = participantsMap[match.player1_id];
-                const player2 = participantsMap[match.player2_id];
-                const hasResult = match.winner_id !== null;
-                
-                return (
-                  <div class={`flex justify-between items-center p-3 rounded-md ${hasResult ? 'bg-green-50/50' : 'bg-muted/50'}`}>
-                    <div class="flex items-center gap-3">
-                      <span class={match.winner_id === match.player1_id ? 'font-bold text-green-700' : ''}>
-                        {player1?.name || 'Ukjent'}
-                      </span>
-                      <span class="text-muted-foreground text-sm">vs</span>
-                      <span class={match.winner_id === match.player2_id ? 'font-bold text-green-700' : ''}>
-                        {player2?.name || 'Ukjent'}
-                      </span>
+  {
+    Object.keys(matchesByRound).length > 0 && (
+      <section class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Kamper</h2>
+        {Object.entries(matchesByRound).map(([round, roundMatches]) => (
+          <Card class="mb-4">
+            <CardHeader>
+              <CardTitle class="text-lg">Runde {round}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="space-y-3">
+                {roundMatches.map((match) => {
+                  const player1 = participantsMap[match.player1_id];
+                  const player2 = participantsMap[match.player2_id];
+                  const hasResult = match.winner_id !== null;
+
+                  return (
+                    <div
+                      class={`flex justify-between items-center p-3 rounded-md ${hasResult ? "bg-green-50/50" : "bg-muted/50"}`}
+                    >
+                      <div class="flex items-center gap-3">
+                        <span
+                          class={
+                            match.winner_id === match.player1_id
+                              ? "font-bold text-green-700"
+                              : ""
+                          }
+                        >
+                          {player1?.name || "Ukjent"}
+                        </span>
+                        <span class="text-muted-foreground text-sm">vs</span>
+                        <span
+                          class={
+                            match.winner_id === match.player2_id
+                              ? "font-bold text-green-700"
+                              : ""
+                          }
+                        >
+                          {player2?.name || "Ukjent"}
+                        </span>
+                      </div>
+                      {hasResult && (
+                        <Badge
+                          variant="outline"
+                          class="font-bold bg-background"
+                        >
+                          {match.player1_score} - {match.player2_score}
+                        </Badge>
+                      )}
+                      {!hasResult && (
+                        <span class="text-muted-foreground text-sm">
+                          Ikke spilt
+                        </span>
+                      )}
                     </div>
-                    {hasResult && (
-                      <Badge variant="outline" class="font-bold bg-background">
-                      <Badge variant="outline" class="font-bold bg-background">
-                        {match.player1_score} - {match.player2_score}
-                      </Badge>
-                    )}
-                    {!hasResult && (
-                      <span class="text-muted-foreground text-sm">Ikke spilt</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+    )
+  }
+
+  {
+    participants.length > 0 && (
+      <section class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">
+          Påmeldte ({participants.length})
+        </h2>
+        <Card>
+          <CardContent class="pt-6">
+            <ul class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {participants.map((p) => (
+                <li class="flex flex-col">
+                  <span class="font-bold">{p.name}</span>
+                  {p.slack_handle && (
+                    <span class="text-sm text-muted-foreground">
+                      @{p.slack_handle}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
-      ))}
-    </section>
-  )}
-
-  {participants.length > 0 && (
-    <section class="mt-8">
-    <section class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Påmeldte ({participants.length})</h2>
-      <Card>
-        <CardContent class="pt-6">
-        <CardContent class="pt-6">
-          <ul class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {participants.map(p => (
-              <li class="flex flex-col">
-                <span class="font-bold">{p.name}</span>
-                {p.slack_handle && <span class="text-sm text-muted-foreground">@{p.slack_handle}</span>}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-    </section>
-  )}
+      </section>
+    )
+  }
 </Layout>

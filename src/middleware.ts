@@ -59,16 +59,17 @@ const auth = defineMiddleware(async (context, next) => {
   if (import.meta.env.DEV) {
     const devAdmin = url.searchParams.get('admin') !== 'false';
     (locals as { user: User }).user = user ?? createDevUser(devAdmin);
-    return next();
+  } else {
+    (locals as { user?: User | null }).user = user;
+
+    if (!user) {
+      return new Response('Unauthorized', { status: 401 });
+    }
   }
 
-  (locals as { user?: User | null }).user = user;
-
-  if (!user) {
-    return new Response('Unauthorized', { status: 401 });
-  }
-
-  if (url.pathname.startsWith('/admin') && !user.isAdmin) {
+  const currentUser = (locals as { user: User }).user;
+  
+  if (url.pathname.startsWith('/admin') && !currentUser.isAdmin) {
     return new Response('Forbidden - Admin access required', { status: 403 });
   }
 

@@ -46,7 +46,7 @@ for (const match of matches) {
   if (!matchesByRound[match.round]) {
     matchesByRound[match.round] = [];
   }
-  matchesByRound[match.round].push(match);
+  matchesByRound[match.round]?.push(match);
 }
 
 const formatDate = (dateString: string | null, includeTime = false) => {
@@ -484,6 +484,8 @@ const TYPE_LABELS: Record<string, string> = {
     async function registerWinner(winnerId: number) {
       if (!currentEditingMatch) return;
       
+      const isPlayer1Winner = winnerId === currentEditingMatch.player1_id;
+      
       try {
         const response = await fetch('/api/matches', {
           method: 'PUT',
@@ -491,6 +493,8 @@ const TYPE_LABELS: Record<string, string> = {
           body: JSON.stringify({
             id: currentEditingMatch.id,
             winnerId,
+            player1Score: isPlayer1Winner ? 1 : 0,
+            player2Score: isPlayer1Winner ? 0 : 1,
             playedAt: new Date().toISOString()
           })
         });

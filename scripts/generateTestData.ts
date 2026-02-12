@@ -1,7 +1,10 @@
 import Database from 'better-sqlite3';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { mkdirSync } from 'fs';
 
 const dbPath = resolve('./data/tournament.db');
+const dbDirectory = dirname(dbPath);
+mkdirSync(dbDirectory, { recursive: true });
 const db = new Database(dbPath);
 
 interface TournamentConfig {
@@ -78,22 +81,6 @@ function createTournament(config: TournamentConfig): number {
   );
   
   return result.lastInsertRowid as number;
-}
-
-function addParticipants(tournamentId: number, count: number): number[] {
-  const participantIds: number[] = [];
-  const stmt = db.prepare(`
-    INSERT INTO participants (tournament_id, name, email, nav_ident, slack_handle)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-  
-  for (let i = 0; i < count; i++) {
-    const person = generatePerson();
-    const result = stmt.run(tournamentId, person.name, person.email, person.navIdent, person.slackHandle);
-    participantIds.push(result.lastInsertRowid as number);
-  }
-  
-  return participantIds;
 }
 
 function generateMatches(tournamentId: number, participants: number[], rounds: number) {
