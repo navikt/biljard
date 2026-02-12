@@ -31,7 +31,7 @@ matches.forEach(match => {
   if (!matchesByRound[match.round]) {
     matchesByRound[match.round] = [];
   }
-  matchesByRound[match.round].push(match);
+  matchesByRound[match.round]!.push(match);
 });
 
 const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
@@ -50,15 +50,15 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   </div>
 
   {tournament.description && (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
+    <Card class="mb-6">
+      <CardContent class="pt-6">
         <p>{tournament.description}</p>
       </CardContent>
     </Card>
   )}
 
-  <Card className="mb-8">
-    <CardContent className="pt-6">
+  <Card class="mb-8">
+    <CardContent class="pt-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div class="flex flex-col gap-1">
           <span class="text-muted-foreground">Antall runder</span>
@@ -97,14 +97,14 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   </Card>
 
   {isRegistrationOpen && user && !isAlreadyRegistered && (
-    <section className="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Meld deg på</h2>
       <RegistrationForm tournamentId={tournamentId} user={user} />
     </section>
   )}
 
   {isAlreadyRegistered && (
-    <Alert className="mt-8">
+    <Alert class="mt-8">
       <AlertTitle>Du er påmeldt! ✅</AlertTitle>
       <AlertDescription>
         Du er allerede registrert i denne turneringen. Vi sees på biljardbordet!
@@ -113,7 +113,7 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   )}
 
   {!isRegistrationOpen && tournament.status === 'registration' && (
-    <Alert variant="destructive">
+    <Alert variant="warning">
       <AlertTitle>Påmelding stengt</AlertTitle>
       <AlertDescription>
         Påmeldingsfristen har utløpt. Kontakt administrator hvis du ønsker å delta.
@@ -122,13 +122,13 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   )}
 
   {standings.length > 0 && (tournament.status === 'active' || tournament.status === 'completed') && (
-    <section className="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Tabell</h2>
-      <div className="border rounded-md">
+      <div class="border rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">#</TableHead>
+              <TableHead class="w-12.5">#</TableHead>
               <TableHead>Spiller</TableHead>
               <TableHead>Spilt</TableHead>
               <TableHead>Seire</TableHead>
@@ -144,12 +144,12 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
                   {index === 2 && '🥉 '}
                   {index + 1}
                 </TableCell>
-                <TableCell className={index < 3 ? 'font-bold' : ''}>
+                <TableCell class={index < 3 ? 'font-bold' : ''}>
                   {standing.participant.name}
                 </TableCell>
                 <TableCell>{standing.played}</TableCell>
-                <TableCell className="text-green-600 font-medium">{standing.wins}</TableCell>
-                <TableCell className={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
+                <TableCell class="text-green-600 font-medium">{standing.wins}</TableCell>
+                <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -159,12 +159,12 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   )}
 
   {Object.keys(matchesByRound).length > 0 && (
-    <section className="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Kamper</h2>
       {Object.entries(matchesByRound).map(([round, roundMatches]) => (
-        <Card className="mb-4">
+        <Card class="mb-4">
           <CardHeader>
-            <CardTitle className="text-lg">Runde {round}</CardTitle>
+            <CardTitle class="text-lg">Runde {round}</CardTitle>
           </CardHeader>
           <CardContent>
             <div class="space-y-3">
@@ -185,7 +185,7 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
                       </span>
                     </div>
                     {hasResult && (
-                      <Badge variant="outline" className="font-bold bg-background">
+                      <Badge variant="outline" class="font-bold bg-background">
                         {match.player1_score} - {match.player2_score}
                       </Badge>
                     )}
@@ -203,10 +203,10 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   )}
 
   {participants.length > 0 && (
-    <section className="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Påmeldte ({participants.length})</h2>
       <Card>
-        <CardContent className="pt-6">
+        <CardContent class="pt-6">
           <ul class="grid grid-cols-2 md:grid-cols-3 gap-4">
             {participants.map(p => (
               <li class="flex flex-col">

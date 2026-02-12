@@ -243,20 +243,22 @@ export function generateRoundRobinMatches(tournamentId: number): void {
     const shuffled = [...participants].sort(() => Math.random() - 0.5);
     
     for (let i = 0; i < shuffled.length - 1; i += 2) {
-      if (!usedPlayers.has(shuffled[i].id) && !usedPlayers.has(shuffled[i + 1].id)) {
+      const player1 = shuffled[i];
+      const player2 = shuffled[i + 1];
+      if (player1 && player2 && !usedPlayers.has(player1.id) && !usedPlayers.has(player2.id)) {
         createMatch({
           tournament_id: tournamentId,
           round,
-          player1_id: shuffled[i].id,
-          player2_id: shuffled[i + 1].id,
+          player1_id: player1.id,
+          player2_id: player2.id,
           player1_score: null,
           player2_score: null,
           winner_id: null,
           played_at: null,
           reported_by: null
         });
-        usedPlayers.add(shuffled[i].id);
-        usedPlayers.add(shuffled[i + 1].id);
+        usedPlayers.add(player1.id);
+        usedPlayers.add(player2.id);
       }
     }
   }
