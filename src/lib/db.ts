@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import Database, { type Database as DatabaseType } from 'better-sqlite3';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname, resolve } from 'path';
 
@@ -6,14 +6,19 @@ const dbPath = process.env.NODE_ENV === 'production'
   ? '/app/data/tournament.db'
   : resolve('./data/tournament.db');
 
-const dir = dirname(dbPath);
-if (!existsSync(dir)) {
-  mkdirSync(dir, { recursive: true });
-}
+let _db: DatabaseType | null = null;
 
-const db = new Database(dbPath);
+function getDb(): DatabaseType {
+  if (_db) return _db;
 
-db.exec(`
+  const dir = dirname(dbPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  _db = new Database(dbPath);
+
+  _db.exec(`
   CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -38,9 +43,9 @@ db.exec(`
     registered_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
     UNIQUE(tournament_id, email)
-  );
+    );
 
-  CREATE TABLE IF NOT EXISTS matches (
+    CREATE TABLE IF NOT EXISTS matches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tournament_id INTEGER NOT NULL,
     round INTEGER NOT NULL,
@@ -55,8 +60,16 @@ db.exec(`
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id),
     FOREIGN KEY (player1_id) REFERENCES participants(id),
     FOREIGN KEY (player2_id) REFERENCES participants(id)
-  );
-`);
+    );
+  `);
+
+  return _db;
+}
+
+const db = {
+  prepare: (sql: string) => getDb().prepare(sql),
+  exec: (sql: string) => getDb().exec(sql),
+};
 
 export interface Tournament {
   id: number;
@@ -243,20 +256,22 @@ export function generateRoundRobinMatches(tournamentId: number): void {
     const shuffled = [...participants].sort(() => Math.random() - 0.5);
     
     for (let i = 0; i < shuffled.length - 1; i += 2) {
-      if (!usedPlayers.has(shuffled[i].id) && !usedPlayers.has(shuffled[i + 1].id)) {
+      const player1 = shuffled[i];
+      const player2 = shuffled[i + 1];
+      if (player1 && player2 && !usedPlayers.has(player1.id) && !usedPlayers.has(player2.id)) {
         createMatch({
           tournament_id: tournamentId,
           round,
-          player1_id: shuffled[i].id,
-          player2_id: shuffled[i + 1].id,
+          player1_id: player1.id,
+          player2_id: player2.id,
           player1_score: null,
           player2_score: null,
           winner_id: null,
           played_at: null,
           reported_by: null
         });
-        usedPlayers.add(shuffled[i].id);
-        usedPlayers.add(shuffled[i + 1].id);
+        usedPlayers.add(player1.id);
+        usedPlayers.add(player2.id);
       }
     }
   }

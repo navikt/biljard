@@ -30,7 +30,7 @@ matches.forEach(match => {
   if (!matchesByRound[match.round]) {
     matchesByRound[match.round] = [];
   }
-  matchesByRound[match.round].push(match);
+  matchesByRound[match.round]!.push(match);
 });
 
 const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
@@ -51,11 +51,15 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
   {tournament.description && (
     <Card class="mb-6">
       <CardContent class="pt-6">
+    <Card class="mb-6">
+      <CardContent class="pt-6">
         <p>{tournament.description}</p>
       </CardContent>
     </Card>
   )}
 
+  <Card class="mb-8">
+    <CardContent class="pt-6">
   <Card class="mb-8">
     <CardContent class="pt-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -127,7 +131,7 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[50px]">#</TableHead>
+              <TableHead class="w-12.5">#</TableHead>
               <TableHead>Spiller</TableHead>
               <TableHead>Spilt</TableHead>
               <TableHead>Seire</TableHead>
@@ -144,9 +148,12 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
                   {index + 1}
                 </TableCell>
                 <TableCell class={index < 3 ? 'font-bold' : ''}>
+                <TableCell class={index < 3 ? 'font-bold' : ''}>
                   {standing.participant.name}
                 </TableCell>
                 <TableCell>{standing.played}</TableCell>
+                <TableCell class="text-green-600 font-medium">{standing.wins}</TableCell>
+                <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
                 <TableCell class="text-green-600 font-medium">{standing.wins}</TableCell>
                 <TableCell class={standing.losses > 0 ? 'text-destructive' : ''}>{standing.losses}</TableCell>
               </TableRow>
@@ -159,10 +166,13 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
 
   {Object.keys(matchesByRound).length > 0 && (
     <section class="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Kamper</h2>
       {Object.entries(matchesByRound).map(([round, roundMatches]) => (
         <Card class="mb-4">
+        <Card class="mb-4">
           <CardHeader>
+            <CardTitle class="text-lg">Runde {round}</CardTitle>
             <CardTitle class="text-lg">Runde {round}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -185,6 +195,7 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
                     </div>
                     {hasResult && (
                       <Badge variant="outline" class="font-bold bg-background">
+                      <Badge variant="outline" class="font-bold bg-background">
                         {match.player1_score} - {match.player2_score}
                       </Badge>
                     )}
@@ -203,8 +214,10 @@ const participantsMap = Object.fromEntries(participants.map(p => [p.id, p]));
 
   {participants.length > 0 && (
     <section class="mt-8">
+    <section class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Påmeldte ({participants.length})</h2>
       <Card>
+        <CardContent class="pt-6">
         <CardContent class="pt-6">
           <ul class="grid grid-cols-2 md:grid-cols-3 gap-4">
             {participants.map(p => (
