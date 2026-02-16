@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^9.5.3",
-    "@tabler/icons-react": "^3.36.1",
+    "@tabler/icons": "^3.36.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.2",
@@ -33,6 +33,9 @@
     "overrides": {
       "tar": ">=7.5.7",
       "glob": ">=11.1.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   }
 }
