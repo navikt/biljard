@@ -47,4 +47,4 @@ spec:
     - persistentVolumeClaim: biljard-data
       mountPath: /app/data
   ingresses:
-    - https://biljard.nav.no
+    - https://biljard.ansatt.nav.no
