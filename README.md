@@ -14,13 +14,13 @@ En work in progress applikasjon som skal kunne administrere biljardturneringer i
 1. Installer avhengigheter:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start utviklingsserveren:
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 3. Åpne en nettleser på adressen `http://localhost:8080`
@@ -42,7 +42,7 @@ Appen bruker [Wonderwall](https://doc.nais.io/auth/entra-id/how-to/login/) sidec
 
 ## Lokalt utvikling
 
-I utviklingsmodus (`npm run dev`) får du automatisk en test-bruker med admin-tilgang.
+I utviklingsmodus (`pnpm dev`) får du automatisk en test-bruker med admin-tilgang.
 
 ### Test som vanlig bruker
 
@@ -65,6 +65,6 @@ rm data/tournament.db
 ### Kjør tester
 
 ```bash
-npm test           # Kjør en gang
-npm run test:watch # Kjør kontinuerlig
+pnpm test           # Kjør en gang
+pnpm test:watch     # Kjør kontinuerlig
 ```

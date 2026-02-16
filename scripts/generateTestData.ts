@@ -194,7 +194,7 @@ if (command === 'clean') {
 } else {
   console.log(`
 Usage:
-  npm run test-data clean     - Remove all data
-  npm run test-data generate  - Clean and generate new test data
+  pnpm test-data clean     - Remove all data
+  pnpm test-data generate  - Clean and generate new test data
   `);
 }
