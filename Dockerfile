@@ -30,4 +30,4 @@ USER nonroot
 
 EXPOSE 8080
 
-CMD ["node", "./dist/server/entry.mjs"]
+CMD ["node", "dist/server/entry.mjs"]
