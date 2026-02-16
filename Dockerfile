@@ -1,4 +1,4 @@
-FROM node:22-alpine@sha256:e4bf2a82ad0a4037d28035ae71529873c069b13eb0455466ae0bc13363826e34 AS builder
+FROM node:25-alpine@sha256:b9b5737eabd423ba73b21fe2e82332c0656d571daf1ebf19b0f89d0dd0d3ca93 AS builder
 
 RUN apk add --no-cache python3 make g++
 
@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
-FROM node:22-alpine@sha256:e4bf2a82ad0a4037d28035ae71529873c069b13eb0455466ae0bc13363826e34
+FROM node:25-alpine@sha256:b9b5737eabd423ba73b21fe2e82332c0656d571daf1ebf19b0f89d0dd0d3ca93
 
 RUN apk upgrade --no-cache
 
